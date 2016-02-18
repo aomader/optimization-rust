@@ -1,0 +1,15 @@
+[package]
+name = "optimization"
+version = "0.1.0"
+authors = ["Oliver Mader <b52@reaktor42.de>"]
+license = "MIT"
+description = "Collection of optimization algorithms"
+repository = "https://github.com/b52/optimization-rust"
+readme = "README.md"
+keywords = ["optimization", "minimization", "gradient"]
+
+[dependencies]
+log = "0.3"
+env_logger = "0.3"
+#clippy = "~0.0"
+#herbie-lint = "^1.0"
