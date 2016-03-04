@@ -2,7 +2,7 @@ use rand::{Rng, SeedableRng, XorShiftRng};
 
 use types::*;
 use line_search::*;
-use utils::flat;
+use utils::is_saddle_point;
 
 pub struct StochasticGradientDescent {
     mini_batch: usize,
@@ -64,7 +64,7 @@ impl<T: SampledDifferentiableObjective> Optimizer<T> for StochasticGradientDesce
 
                 let gradient = mini_batch.gradient(&x);
 
-                if flat(&gradient, 1.0e-8) {
+                if is_saddle_point(&gradient, 1.0e-8) {
                     info!("Gradient to small, stopping optimization");
 
                     return Solution {

@@ -1,6 +1,6 @@
 use types::{DifferentiableObjective, Optimizer, Solution};
 use line_search::{LineSearch, ArmijoLineSearch};
-use utils::flat;
+use utils::is_saddle_point;
 
 
 /// A simple Gradient Descent optimizer.
@@ -69,7 +69,7 @@ impl<T: DifferentiableObjective, S: LineSearch> Optimizer<T> for GradientDescent
         loop {
             let gradient = objective.gradient(&xs);
 
-            if flat(&gradient, self.gradient_tolerance) {
+            if is_saddle_point(&gradient, self.gradient_tolerance) {
                 info!("Gradient to small, stopping optimization");
 
                 return Solution {
