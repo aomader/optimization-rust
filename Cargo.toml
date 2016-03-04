@@ -11,5 +11,6 @@ keywords = ["optimization", "minimization", "gradient"]
 [dependencies]
 log = "0.3"
 env_logger = "0.3"
+rand = "0.3"
 #clippy = "~0.0"
 #herbie-lint = "^1.0"

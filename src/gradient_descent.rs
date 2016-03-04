@@ -60,14 +60,14 @@ impl<T: DifferentiableObjective, S: LineSearch> Optimizer<T> for GradientDescent
             self.gradient_tolerance, self.max_iterations);
 
         let mut xs = initial_xs;
-        let mut y = objective.f(&xs);
+        let mut y = objective.value(&xs);
 
         debug!("Starting with y₀ = {:e} for x₀ = {:?}", y, xs);
 
         let mut iteration = 0;
 
         loop {
-            let gradient = objective.df(&xs);
+            let gradient = objective.gradient(&xs);
 
             if flat(&gradient, self.gradient_tolerance) {
                 info!("Gradient to small, stopping optimization");

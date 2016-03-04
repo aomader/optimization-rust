@@ -5,31 +5,33 @@ use types::{Objective, DifferentiableObjective};
 pub trait LineSearch {
     /// Performs the actual line search given the current position `xs` and a `direction` to go to.
     /// Should return the new position and the corresponding value.
-    fn search<T: DifferentiableObjective>(&self, objective: &T, xs: &[f64], direction: &[f64]) -> (Vec<f64>, f64);
+    fn search<T: DifferentiableObjective>(&self, objective: &T, x: &[f64], direction: &[f64]) -> (Vec<f64>, f64);
 }
 
 
 /// Uses a fixed step width `γ` in each iteration instead of performing an actual line search.
 #[derive(Debug, Copy, Clone)]
 pub struct NoLineSearch {
-    γ: f64
+    step_width: f64
 }
 
 impl NoLineSearch {
-    /// Creates a new `FixedStepWidth` given the static step width `γ`.
-    pub fn new(γ: f64) -> NoLineSearch {
+    /// Creates a new `FixedStepWidth` given the static step width.
+    pub fn new(step_width: f64) -> NoLineSearch {
         NoLineSearch {
-            γ: γ
+            step_width: step_width
         }
     }
 }
 
 impl LineSearch for NoLineSearch {
-    fn search<T: Objective>(&self, objective: &T, xs: &[f64], direction: &[f64]) -> (Vec<f64>, f64) {
-        let xs: Vec<_> = xs.iter().cloned().zip(direction).map(|(x, d)|
-            x + self.γ * d ).collect();
-        let y = objective.f(&xs);
-        (xs, y)
+    fn search<T: Objective>(&self, objective: &T, x: &[f64], direction: &[f64]) -> (Vec<f64>, f64) {
+        //debug!("Use fixed step width {:e}", self.step_width);
+
+        let x: Vec<_> = x.iter().cloned().zip(direction).map(|(x, d)|
+            x + self.step_width * d ).collect();
+        let y = objective.value(&x);
+        (x, y)
     }
 }
 
@@ -62,20 +64,20 @@ impl ExactLineSearch {
 }
 
 impl LineSearch for ExactLineSearch {
-    fn search<T: DifferentiableObjective>(&self, objective: &T, xs0: &[f64], direction: &[f64]) -> (Vec<f64>, f64) {
-        let mut min_xs: Vec<_> = xs0.iter().cloned().collect();
-        let mut min_y = objective.f(&min_xs);
+    fn search<T: DifferentiableObjective>(&self, objective: &T, x0: &[f64], direction: &[f64]) -> (Vec<f64>, f64) {
+        let mut min_x: Vec<_> = x0.iter().cloned().collect();
+        let mut min_y = objective.value(&min_x);
 
         let mut γ = self.start;
 
         loop {
-            let xs: Vec<_> = xs0.iter().cloned().zip(direction).map(|(x, &d)| {
+            let x: Vec<_> = x0.iter().cloned().zip(direction).map(|(x, &d)| {
                 x + γ * d
             }).collect();
-            let y = objective.f(&xs);
+            let y = objective.value(&x);
 
             if y < min_y {
-                min_xs = xs;
+                min_x = x;
                 min_y = y;
             }
 
@@ -86,7 +88,7 @@ impl LineSearch for ExactLineSearch {
             }
         }
 
-        (min_xs, min_y)
+        (min_x, min_y)
     }
 }
 
@@ -119,8 +121,8 @@ impl ArmijoLineSearch {
 
 impl LineSearch for ArmijoLineSearch {
     fn search<T: DifferentiableObjective>(&self, objective: &T, xs: &[f64], direction: &[f64]) -> (Vec<f64>, f64) {
-        let ynull = objective.f(xs);
-        let gradient = objective.df(xs);
+        let ynull = objective.value(xs);
+        let gradient = objective.gradient(xs);
 
         let m = gradient.iter().zip(direction).map(|(g, d)| g * d).sum::<f64>();
         let t = -self.c * m;
@@ -133,7 +135,7 @@ impl LineSearch for ArmijoLineSearch {
             let xs: Vec<_> = xs.iter().cloned().zip(direction).map(|(x, &d)| {
                 x + γ * d
             }).collect();
-            let y = objective.f(&xs);
+            let y = objective.value(&xs);
 
             if y <= ynull - γ * t {
                 return (xs, y);

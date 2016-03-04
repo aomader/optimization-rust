@@ -14,13 +14,17 @@
 #[macro_use]
 extern crate log;
 
+extern crate rand;
+
 // private modules
 mod types;
 mod line_search;
 mod gradient_descent;
+mod sgd;
 mod utils;
 
 // public re-exports
-pub use types::{Objective, DifferentiableObjective, Optimizer};
+pub use types::{Objective, DifferentiableObjective, SampledObjective, SampledDifferentiableObjective, Optimizer};
 pub use line_search::{LineSearch, NoLineSearch, ExactLineSearch, ArmijoLineSearch};
 pub use gradient_descent::{GradientDescent};
+pub use sgd::StochasticGradientDescent;

@@ -33,7 +33,7 @@ struct Rosenbrock {
 }
 
 impl Objective for Rosenbrock {
-    fn f(&self, xs: &[f64]) -> f64 {
+    fn value(&self, xs: &[f64]) -> f64 {
         assert!(xs.len() == 2);
 
         (self.a - xs[0]).powi(2) + self.b * (xs[1] - xs[0].powi(2)).powi(2)
@@ -41,7 +41,7 @@ impl Objective for Rosenbrock {
 }
 
 impl DifferentiableObjective for Rosenbrock {
-    fn df(&self, xs: &[f64]) -> Vec<f64> {
+    fn gradient(&self, xs: &[f64]) -> Vec<f64> {
         assert!(xs.len() == 2);
 
         let dx = -2.0 * self.a + 4.0 * self.b * xs[0].powi(3) - 4.0 * self.b * xs[0] * xs[1] + 2.0 * xs[0];
