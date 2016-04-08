@@ -4,94 +4,101 @@ use types::{Function, DifferentiableFunction};
 /// Define a line search method, i.e., choosing an appropriate step width.
 pub trait LineSearch {
     /// Performs the actual line search given the current `position` `x` and a `direction` to go to.
-    /// Returns the new position and the corresponding value, in that order.
-    fn search<F: DifferentiableFunction>(&self, objective: &F, position: &[f64], direction: &[f64])
-        -> (Vec<f64>, f64);
+    /// Returns the new position.
+    fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
+        where F: DifferentiableFunction;
 }
 
 
 /// Uses a fixed step width `γ` in each iteration instead of performing an actual line search.
 #[derive(Debug, Copy, Clone)]
 pub struct NoLineSearch {
-    step_width: f64
+    fixed_step_width: f64
 }
 
 impl NoLineSearch {
     /// Creates a new `FixedStepWidth` given the static step width.
-    pub fn new(step_width: f64) -> NoLineSearch {
-        assert!(step_width.is_finite() && step_width > 0.0, "step_width must be finite and > 0");
+    pub fn new(fixed_step_width: f64) -> NoLineSearch {
+        assert!(fixed_step_width > 0.0 && fixed_step_width.is_finite(),
+            "fixed_step_width must be greater than 0 and finite");
 
         NoLineSearch {
-            step_width: step_width
+            fixed_step_width: fixed_step_width
         }
     }
 }
 
 impl LineSearch for NoLineSearch {
-    fn search<F: Function>(&self, objective: &F, x: &[f64], direction: &[f64]) ->
-        (Vec<f64>, f64)
+    fn search<F>(&self, _function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
+        where F: Function
     {
-        let x: Vec<_> = x.iter().cloned().zip(direction).map(|(x, d)|
-            x + self.step_width * d ).collect();
-        let y = objective.value(&x);
-        (x, y)
+        initial_position.iter().cloned().zip(direction).map(|(x, d)| {
+            x + self.fixed_step_width * d
+        }).collect()
     }
 }
 
 
 /// Brute-force line search minimizing the objective function over a set of
-/// step width candidates.
+/// step width candidates, also known as exact line search.
 #[derive(Debug, Copy, Clone)]
 pub struct ExactLineSearch {
-    start: f64,
-    stop: f64,
-    factor: f64
+    start_step_width: f64,
+    stop_step_width: f64,
+    increase_factor: f64
 }
 
 impl ExactLineSearch {
-    /// Creates a new `ExactLineSearch` given the `start` value, the `stop` value and the
-    /// `increment`. The set of evaluated step widths is defined as
-    /// `{ γ | γ = start · factorⁱ, i ∈ N, γ <= stop }`
-    /// assuming that `start` < `stop` and `factor` > 1.
-    pub fn new(start: f64, stop: f64, factor: f64) -> ExactLineSearch {
-        assert!(start > 0.0, "start must be > 0");
-        assert!(stop > start, "");
-        assert!(factor > 1.0);
+    /// Creates a new `ExactLineSearch` given the `start_step_width`, the `stop_step_width`
+    /// and the `increase_factor`. The set of evaluated step widths `γ` is specified as
+    /// `{ γ | γ = start_step_width · increase_factorⁱ, i ∈ N, γ <= stop_step_width }`,
+    /// assuming that `start_step_width` < `stop_step_width` and `increase_factor` > 1.
+    pub fn new(start_step_width: f64, stop_step_width: f64, increase_factor: f64) ->
+        ExactLineSearch
+    {
+        assert!(start_step_width > 0.0 && start_step_width.is_finite(),
+            "start_step_width must be greater than 0 and finite");
+        assert!(stop_step_width > start_step_width && stop_step_width.is_finite(),
+            "stop_step_width must be greater than start_step_width");
+        assert!(increase_factor > 1.0 && increase_factor.is_finite(),
+            "increase_factor must be greater than 1 and finite");
 
         ExactLineSearch {
-            start: start,
-            stop: stop,
-            factor: factor
+            start_step_width: start_step_width,
+            stop_step_width: stop_step_width,
+            increase_factor: increase_factor
         }
     }
 }
 
 impl LineSearch for ExactLineSearch {
-    fn search<F: DifferentiableFunction>(&self, objective: &F, x0: &[f64], direction: &[f64]) -> (Vec<f64>, f64) {
-        let mut min_x: Vec<_> = x0.iter().cloned().collect();
-        let mut min_y = objective.value(&min_x);
+    fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
+        where F: DifferentiableFunction
+    {
+        let mut min_position = initial_position.iter().cloned().collect();
+        let mut min_value = function.value(initial_position);
 
-        let mut step_width = self.start;
+        let mut step_width = self.start_step_width;
 
         loop {
-            let x: Vec<_> = x0.iter().cloned().zip(direction).map(|(x, &d)| {
+            let position: Vec<_> = initial_position.iter().cloned().zip(direction).map(|(x, d)| {
                 x + step_width * d
             }).collect();
-            let y = objective.value(&x);
+            let value = function.value(&position);
 
-            if y < min_y {
-                min_x = x;
-                min_y = y;
+            if value < min_value {
+                min_position = position;
+                min_value = value;
             }
 
-            step_width *= self.factor;
+            step_width *= self.increase_factor;
 
-            if step_width > self.stop {
+            if step_width >= self.stop_step_width {
                 break;
             }
         }
 
-        (min_x, min_y)
+        min_position
     }
 }
 
@@ -99,52 +106,58 @@ impl LineSearch for ExactLineSearch {
 /// Backtracking line search evaluating the Armijo rule at each step width.
 #[derive(Debug, Copy, Clone)]
 pub struct ArmijoLineSearch {
-    control: f64,
-    start: f64,
-    decay: f64
+    control_parameter: f64,
+    initial_step_width: f64,
+    decay_factor: f64
 }
 
 impl ArmijoLineSearch {
-    /// Creates a new `ArmijoLineSearch` given the `control` parameter ∈ (0, 1), the
-    /// initial step width `start` > 0 and the `decay` factor ∈ (0, 1).
+    /// Creates a new `ArmijoLineSearch` given the `control_parameter` ∈ (0, 1), the
+    /// `initial_step_width` > 0 and the `decay_factor` ∈ (0, 1).
     ///
-    /// In the paper by Armijo he used the values 0.5, 1.0 and 0.5, respectively.
-    pub fn new(control: f64, start: f64, decay: f64) -> ArmijoLineSearch {
-        assert!(control > 0.0 && control < 1.0, "control must be in range (0, 1)");
-        assert!(start > 0.0, "start must be > 0");
-        assert!(decay > 0.0 && decay < 1.0, "decay must be in range (0, 1)");
+    /// Armijo used in his paper the values 0.5, 1.0 and 0.5, respectively.
+    pub fn new(control_parameter: f64, initial_step_width: f64, decay_factor: f64) ->
+        ArmijoLineSearch
+    {
+        assert!(control_parameter > 0.0 && control_parameter < 1.0,
+            "control_parameter must be in range (0, 1)");
+        assert!(initial_step_width > 0.0 && initial_step_width.is_finite(),
+            "initial_step_width must be > 0 and finite");
+        assert!(decay_factor > 0.0 && decay_factor < 1.0, "decay_factor must be in range (0, 1)");
 
         ArmijoLineSearch {
-            control: control,
-            start: start,
-            decay: decay
+            control_parameter: control_parameter,
+            initial_step_width: initial_step_width,
+            decay_factor: decay_factor
         }
     }
 }
 
 impl LineSearch for ArmijoLineSearch {
-    fn search<F: DifferentiableFunction>(&self, objective: &F, xs: &[f64], direction: &[f64]) -> (Vec<f64>, f64) {
-        let ynull = objective.value(xs);
-        let gradient = objective.gradient(xs);
+    fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
+        where F: DifferentiableFunction
+    {
+        let initial_value = function.value(initial_position);
+        let gradient = function.gradient(initial_position);
 
         let m = gradient.iter().zip(direction).map(|(g, d)| g * d).sum::<f64>();
-        let t = -self.control * m;
+        let t = -self.control_parameter * m;
 
         assert!(t > 0.0);
 
-        let mut step_width = self.start;
+        let mut step_width = self.initial_step_width;
 
         loop {
-            let xs: Vec<_> = xs.iter().cloned().zip(direction).map(|(x, &d)| {
+            let position: Vec<_> = initial_position.iter().cloned().zip(direction).map(|(x, d)| {
                 x + step_width * d
             }).collect();
-            let y = objective.value(&xs);
+            let value = function.value(&position);
 
-            if y <= ynull - step_width * t {
-                return (xs, y);
+            if value <= initial_value - step_width * t {
+                return position;
             }
 
-            step_width *= self.decay;
+            step_width *= self.decay_factor;
         }
     }
 }

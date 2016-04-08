@@ -81,10 +81,10 @@ impl<F: DifferentiableFunction, S: LineSearch> Optimizer<F> for GradientDescent<
 
             let direction: Vec<_> = gradient.into_iter().map(|g| -g).collect();
 
-            let (iter_xs, iter_y) = self.line_search.search(objective, &xs, &direction);
+            let iter_xs = self.line_search.search(objective, &xs, &direction);
 
             xs = iter_xs;
-            y = iter_y;
+            y = objective.value(&xs);
 
             iteration += 1;
 

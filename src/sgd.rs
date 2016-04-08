@@ -61,7 +61,7 @@ impl<'a, C, F> Optimizer<Summation<C>> for StochasticGradientDescent
 
                 let direction: Vec<_> = gradient.into_iter().map(|g| -g).collect();
 
-                let (line_x, _) = line_search.search(&batch, &x, &direction);
+                let line_x = line_search.search(&batch, &x, &direction);
 
                 x = line_x;
             }
@@ -85,4 +85,3 @@ impl<'a, C, F> Optimizer<Summation<C>> for StochasticGradientDescent
         }
     }
 }
-
