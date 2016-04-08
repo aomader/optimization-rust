@@ -3,11 +3,10 @@
 //!
 //!
 
-#![feature(plugin)]
 #![feature(iter_arith)]
-#![feature(non_ascii_idents)]
 
 // lints
+//#![feature(plugin)]
 //#![plugin(clippy)]
 //#![plugin(herbie_lint)]
 
@@ -24,7 +23,7 @@ mod sgd;
 mod utils;
 
 // public re-exports
-pub use types::{Objective, DifferentiableObjective, SampledObjective, SampledDifferentiableObjective, Optimizer};
+pub use types::{Function, DifferentiableFunction, Summation, Optimizer};
 pub use line_search::{LineSearch, NoLineSearch, ExactLineSearch, ArmijoLineSearch};
 pub use gradient_descent::{GradientDescent};
 pub use sgd::StochasticGradientDescent;

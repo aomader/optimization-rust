@@ -1,4 +1,4 @@
-use types::{DifferentiableObjective, Optimizer, Solution};
+use types::{DifferentiableFunction, Optimizer, Solution};
 use line_search::{LineSearch, ArmijoLineSearch};
 use utils::is_saddle_point;
 
@@ -54,15 +54,16 @@ impl<T: LineSearch> GradientDescent<T> {
     }
 }
 
-impl<T: DifferentiableObjective, S: LineSearch> Optimizer<T> for GradientDescent<S> {
-    fn optimize(&self, objective: &T, initial_xs: Vec<f64>) -> Solution {
+impl<F: DifferentiableFunction, S: LineSearch> Optimizer<F> for GradientDescent<S> {
+    fn optimize(&self, objective: &F, initial_xs: Vec<f64>) -> Solution {
         info!("Using GradientDescent for optimization: gradient_tolerance = {:?}, max_iterations = {:?}",
             self.gradient_tolerance, self.max_iterations);
 
         let mut xs = initial_xs;
         let mut y = objective.value(&xs);
 
-        debug!("Starting with y₀ = {:e} for x₀ = {:?}", y, xs);
+        //debug!("Starting with y₀ = {:e} for x₀ = {:?}", y, xs);
+        debug!("Starting with y₀ = {}", y);
 
         let mut iteration = 0;
 
@@ -87,7 +88,7 @@ impl<T: DifferentiableObjective, S: LineSearch> Optimizer<T> for GradientDescent
 
             iteration += 1;
 
-            debug!("Iteration {:4}: y = {:e}", iteration, y);
+            debug!("Iteration {:4}: y = {}", iteration, y);
 
             let reached_max_iterations = self.max_iterations.map_or(false,
                     |max_iterations| iteration == max_iterations);
