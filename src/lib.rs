@@ -17,13 +17,13 @@ extern crate rand;
 
 // private modules
 mod types;
-mod line_search;
-mod gradient_descent;
-mod sgd;
 mod utils;
+mod line_search;
+pub mod gd;
+pub mod sgd;
 
 // public re-exports
-pub use types::{Function, DifferentiableFunction, Summation, Minimizer};
+pub use types::{Function, DifferentiableFunction, Summation, Minimizer, Evaluation};
 pub use line_search::{LineSearch, NoLineSearch, ExactLineSearch, ArmijoLineSearch};
-pub use gradient_descent::{GradientDescent};
+pub use gd::GradientDescent;
 pub use sgd::StochasticGradientDescent;
