@@ -1,5 +1,3 @@
-//! Provides the basic types common to most optimizers.
-
 use std::ops::Deref;
 
 
@@ -89,14 +87,35 @@ impl<C: Deref<Target=[F]>, F: DifferentiableFunction> DifferentiableFunction for
 }
 
 
-/// Defines an optimizer that is able to minimize a given objective function.
-pub trait Optimizer<F: Function> {
-    /// Performs the actual minimization and might return a solution that
-    /// is better than the initially provided one.
-    fn optimize(&self, objective: &F, x0: Vec<f64>) -> Solution;
+/// Defines an optimizer that is able to minimize a given objective function `F`.
+pub trait Minimizer<F: Function> {
+    type Solution: Evaluation;
+
+    /// Performs the actual minimization and returns a solution that
+    /// might be better than the initially provided one.
+    fn minimize(&self, function: &F, initial_position: Vec<f64>) -> Self::Solution;
 }
 
 /*
+pub trait IterativeMinimizer: Minimizer<F> {
+    fn max_iterations(&mut self, max_iterations: Option<u64>) -> &mut Self;
+
+    //fn iteration_callback(&mut self, callback: &FnMut) -> &mut Self;
+}
+*/
+
+
+/// Captures the essence of a function evaluation.
+pub trait Evaluation {
+    /// Position `x` with the lowest corresponding value `f(x)`.
+    fn position(&self) -> &[f64];
+
+    /// The actual value `f(x)`.
+    fn value(&self) -> f64;
+}
+
+
+/// A solution of a minimization run providing only the minimal information.
 #[derive(Debug, Clone)]
 pub struct Solution {
     /// Position `x` with the lowest corresponding value `f(x)`.
@@ -104,14 +123,23 @@ pub struct Solution {
     /// The actual value `f(x)`.
     pub value: f64
 }
-*/
 
+impl Solution {
+    /// Creates a new `Solution` given the `position` as well as the corresponding `value`.
+    pub fn new(position: Vec<f64>, value: f64) -> Solution {
+        Solution {
+            position: position,
+            value: value
+        }
+    }
+}
 
-/// A solution of a optimization run.
-#[derive(Debug, Clone)]
-pub struct Solution {
-    /// Found position `x` with the lowest corresponding value `f(x)`.
-    pub x: Vec<f64>,
-    /// The actual value `f(x)`.
-    pub y: f64
+impl Evaluation for Solution {
+    fn position(&self) -> &[f64] {
+        &self.position
+    }
+
+    fn value(&self) -> f64 {
+        self.value
+    }
 }

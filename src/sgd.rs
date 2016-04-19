@@ -34,19 +34,21 @@ impl StochasticGradientDescent {
     }
 }
 
-impl<'a, C, F> Optimizer<Summation<C>> for StochasticGradientDescent
+impl<'a, C, F> Minimizer<Summation<C>> for StochasticGradientDescent
     where C: Deref<Target=[F]>,
           F: DifferentiableFunction
 {
-    fn optimize(&self, summation: &Summation<C>, x0: Vec<f64>) -> Solution {
-        let mut objectives: Vec<_> = summation.terms().iter().collect();
+    type Solution = Solution;
+
+    fn minimize(&self, function: &Summation<C>, x0: Vec<f64>) -> Solution {
+        let mut objectives: Vec<_> = function.terms().iter().collect();
 
         let mut rng = XorShiftRng::from_seed([1337, 42, 99999, 314]);
 
         let line_search = ArmijoLineSearch::new(0.1, 1.0, 0.9);
 
         let mut x = x0;
-        let mut y = summation.value(&x);
+        let mut y = function.value(&x);
 
         let mut iteration = 0;
 
@@ -66,7 +68,7 @@ impl<'a, C, F> Optimizer<Summation<C>> for StochasticGradientDescent
                 x = line_x;
             }
 
-            y = summation.value(&x);
+            y = function.value(&x);
             iteration += 1;
 
             debug!("Iteration {:4}: y = {:?}", iteration, y);
@@ -77,10 +79,7 @@ impl<'a, C, F> Optimizer<Summation<C>> for StochasticGradientDescent
             if reached_max_iterations {
                 info!("Reached maximal number of iterations, stopping optimization");
 
-                return Solution {
-                    x: x,
-                    y: y
-                }
+                return Solution::new(x, y);
             }
         }
     }

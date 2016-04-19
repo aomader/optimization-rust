@@ -1,4 +1,4 @@
-use types::{DifferentiableFunction, Optimizer, Solution};
+use types::{DifferentiableFunction, Minimizer, Solution};
 use line_search::{LineSearch, ArmijoLineSearch};
 use utils::is_saddle_point;
 
@@ -54,41 +54,41 @@ impl<T: LineSearch> GradientDescent<T> {
     }
 }
 
-impl<F: DifferentiableFunction, S: LineSearch> Optimizer<F> for GradientDescent<S> {
-    fn optimize(&self, objective: &F, initial_xs: Vec<f64>) -> Solution {
-        info!("Using GradientDescent for optimization: gradient_tolerance = {:?}, max_iterations = {:?}",
+impl<F: DifferentiableFunction, S: LineSearch> Minimizer<F> for GradientDescent<S>
+{
+    type Solution = Solution;
+
+    fn minimize(&self, function: &F, initial_position: Vec<f64>) -> Solution {
+        info!("Starting dradient descent minimization: gradient_tolerance = {:?}, max_iterations = {:?}",
             self.gradient_tolerance, self.max_iterations);
 
-        let mut xs = initial_xs;
-        let mut y = objective.value(&xs);
+        let mut position = initial_position;
+        let mut value = function.value(&position);
 
         //debug!("Starting with y₀ = {:e} for x₀ = {:?}", y, xs);
-        debug!("Starting with y₀ = {}", y);
+        debug!("Starting with y₀ = {}", value);
 
         let mut iteration = 0;
 
         loop {
-            let gradient = objective.gradient(&xs);
+            let gradient = function.gradient(&position);
 
             if is_saddle_point(&gradient, self.gradient_tolerance) {
                 info!("Gradient to small, stopping optimization");
 
-                return Solution {
-                    x: xs,
-                    y: y
-                }
+                return Solution::new(position, value);
             }
 
             let direction: Vec<_> = gradient.into_iter().map(|g| -g).collect();
 
-            let iter_xs = self.line_search.search(objective, &xs, &direction);
+            let iter_xs = self.line_search.search(function, &position, &direction);
 
-            xs = iter_xs;
-            y = objective.value(&xs);
+            position = iter_xs;
+            value = function.value(&position);
 
             iteration += 1;
 
-            debug!("Iteration {:4}: y = {}", iteration, y);
+            debug!("Iteration {:4}: y = {}", iteration, value);
 
             let reached_max_iterations = self.max_iterations.map_or(false,
                     |max_iterations| iteration == max_iterations);
@@ -96,10 +96,7 @@ impl<F: DifferentiableFunction, S: LineSearch> Optimizer<F> for GradientDescent<
             if reached_max_iterations {
                 info!("Reached maximal number of iterations, stopping optimization");
 
-                return Solution {
-                    x: xs,
-                    y: y
-                }
+                return Solution::new(position, value);
             }
         }
     }

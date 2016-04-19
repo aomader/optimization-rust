@@ -23,7 +23,7 @@ mod sgd;
 mod utils;
 
 // public re-exports
-pub use types::{Function, DifferentiableFunction, Summation, Optimizer};
+pub use types::{Function, DifferentiableFunction, Summation, Minimizer};
 pub use line_search::{LineSearch, NoLineSearch, ExactLineSearch, ArmijoLineSearch};
 pub use gradient_descent::{GradientDescent};
 pub use sgd::StochasticGradientDescent;

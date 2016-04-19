@@ -15,13 +15,13 @@ pub fn main() {
         .filter(None, LogLevelFilter::Debug)
         .init();
 
-    let problem = Rosenbrock {
+    let rosenbrock = Rosenbrock {
         a: 1.0,
         b: 100.0
     };
 
     let solution = GradientDescent::new()
-        .optimize(&problem, vec![-3.0, -4.0]);
+        .minimize(&rosenbrock, vec![-3.0, -4.0]);
 
     println!("Solution for Rosenbrock function: {:?}", solution);
 }
@@ -32,7 +32,7 @@ struct Rosenbrock {
     b: f64
 }
 
-impl Objective for Rosenbrock {
+impl Function for Rosenbrock {
     fn value(&self, xs: &[f64]) -> f64 {
         assert!(xs.len() == 2);
 
@@ -40,7 +40,7 @@ impl Objective for Rosenbrock {
     }
 }
 
-impl DifferentiableObjective for Rosenbrock {
+impl DifferentiableFunction for Rosenbrock {
     fn gradient(&self, xs: &[f64]) -> Vec<f64> {
         assert!(xs.len() == 2);
 
