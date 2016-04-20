@@ -1,30 +1,37 @@
 use std::f64::EPSILON;
 
-use types::{Objective, DifferentiableObjective};
+use types::{Function, DifferentiableFunction};
 
-pub struct Numeric<T: Objective> {
-    objective: T
+
+const EPSILON: f64 = 2.2204460492503131e-6;
+
+
+
+
+/// Wraps a function for which to provide numeric gradient computation.
+pub struct NumericDifferentiation<F: Function> {
+    function: F
 }
 
-impl<T: Objective> Numeric<T> {
-    pub fn new(objective: T) -> Self {
-        Numeric {
-            objective: objective
+impl<F: Function> NumericalDifferentiation<F> {
+    pub fn new(function: F) -> Self {
+        NumericalDifferentiation {
+            function: function
         }
     }
 }
 
-impl<T: Objective> Objective for Numeric<T> {
-    fn value(&self, x: &[f64]) -> f64 {
-        self.objective.value(x)
+impl<F: Function> Function for NumericDifferentiation<F> {
+    fn value(&self, position: &[f64]) -> f64 {
+        self.function.value(position)
     }
 }
 
-impl<T: Objective> DifferentiableObjective for Numeric<T> {
+impl<F: Function> DifferentiableObjective for NumericDifferentiation<F> {
     fn gradient(&self, x: &[f64]) -> Vec<f64> {
         let mut x2: Vec<_> = x.iter().cloned().collect();
 
-        const h: f64 = 1.0;// 2.2204460492503131e-10;
+        const h: f64 = EPSILON;
         const h2: f64 = h + h;
 
 
