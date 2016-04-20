@@ -15,12 +15,18 @@ extern crate log;
 
 extern crate rand;
 
-// private modules
+
+#[cfg(any(test, feature="problems"))]
+#[macro_use]
+pub mod problems;
+
 mod types;
 mod utils;
 mod line_search;
+
 pub mod gd;
 pub mod sgd;
+
 
 // public re-exports
 pub use types::{Function, DifferentiableFunction, Summation, Minimizer, Evaluation};

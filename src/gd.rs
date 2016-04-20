@@ -65,8 +65,8 @@ impl<F: DifferentiableFunction, S: LineSearch> Minimizer<F> for GradientDescent<
         let mut position = initial_position;
         let mut value = function.value(&position);
 
-        //debug!("Starting with y₀ = {:e} for x₀ = {:?}", y, xs);
-        debug!("Starting with y₀ = {}", value);
+        //info!("Starting with y₀ = {} for x₀ = {:?}", value, position);
+        info!("Starting with y₀ = {}", value);
 
         let mut iteration = 0;
 
@@ -88,7 +88,7 @@ impl<F: DifferentiableFunction, S: LineSearch> Minimizer<F> for GradientDescent<
 
             iteration += 1;
 
-            debug!("Iteration {:4}: y = {}", iteration, value);
+            debug!("Iteration {:4}: y = {} x = {:?}", iteration, value, position);
 
             let reached_max_iterations = self.max_iterations.map_or(false,
                     |max_iterations| iteration == max_iterations);
@@ -100,4 +100,16 @@ impl<F: DifferentiableFunction, S: LineSearch> Minimizer<F> for GradientDescent<
             }
         }
     }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use problems::{Sphere, Rosenbrock};
+
+    use super::GradientDescent;
+
+    test_minimizer!{GradientDescent::new(),
+        sphere => Sphere::default(),
+        rosenbrock => Rosenbrock::default()}
 }
