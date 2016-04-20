@@ -1,3 +1,5 @@
+use log::LogLevel::Trace;
+
 use types::{DifferentiableFunction, Minimizer, Solution};
 use line_search::{LineSearch, ArmijoLineSearch};
 use utils::is_saddle_point;
@@ -59,14 +61,18 @@ impl<F: DifferentiableFunction, S: LineSearch> Minimizer<F> for GradientDescent<
     type Solution = Solution;
 
     fn minimize(&self, function: &F, initial_position: Vec<f64>) -> Solution {
-        info!("Starting dradient descent minimization: gradient_tolerance = {:?}, max_iterations = {:?}",
-            self.gradient_tolerance, self.max_iterations);
+        info!("Starting gradient descent minimization: gradient_tolerance = {:?},
+            max_iterations = {:?}, line_search = {:?}",
+            self.gradient_tolerance, self.max_iterations, self.line_search);
 
         let mut position = initial_position;
         let mut value = function.value(&position);
 
-        //info!("Starting with y₀ = {} for x₀ = {:?}", value, position);
-        info!("Starting with y₀ = {}", value);
+        if log_enabled!(Trace) {
+            info!("Starting with y = {:?} for x = {:?}", value, position);
+        } else {
+            info!("Starting with y = {:?}", value);
+        }
 
         let mut iteration = 0;
 
@@ -88,7 +94,11 @@ impl<F: DifferentiableFunction, S: LineSearch> Minimizer<F> for GradientDescent<
 
             iteration += 1;
 
-            debug!("Iteration {:4}: y = {} x = {:?}", iteration, value, position);
+            if log_enabled!(Trace) {
+                debug!("Iteration {:6}: y = {:?}, x = {:?}", iteration, value, position);
+            } else {
+                debug!("Iteration {:6}: y = {:?}", iteration, value);
+            }
 
             let reached_max_iterations = self.max_iterations.map_or(false,
                     |max_iterations| iteration == max_iterations);

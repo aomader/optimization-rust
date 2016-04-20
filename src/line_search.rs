@@ -1,8 +1,10 @@
+use std::fmt::Debug;
+
 use types::{Function, DifferentiableFunction};
 
 
 /// Define a line search method, i.e., choosing an appropriate step width.
-pub trait LineSearch {
+pub trait LineSearch: Debug {
     /// Performs the actual line search given the current `position` `x` and a `direction` to go to.
     /// Returns the new position.
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>

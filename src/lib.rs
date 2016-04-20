@@ -16,7 +16,6 @@ extern crate log;
 extern crate rand;
 
 
-#[cfg(any(test, feature="problems"))]
 #[macro_use]
 pub mod problems;
 

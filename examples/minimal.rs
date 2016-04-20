@@ -1,7 +1,9 @@
 //! Minimal usage example of the library.
 //!
-//! Run with `cargo run --example minimal --features problems`.
+//! Run with `cargo run --example minimal`.
 
+
+extern crate env_logger;
 
 extern crate optimization;
 
@@ -11,6 +13,8 @@ use optimization::problems::{Problem, Rosenbrock};
 
 
 pub fn main() {
+    let _ = env_logger::init();
+
     // the target function we want to minimize, for educational reasons we use
     // the Rosenbrock function
     let function = Rosenbrock::default();

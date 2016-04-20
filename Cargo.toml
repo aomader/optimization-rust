@@ -8,12 +8,11 @@ repository = "https://github.com/b52/optimization-rust"
 readme = "README.md"
 keywords = ["optimization", "minimization", "gradient"]
 
-[features]
-problems = []
-
 [dependencies]
 log = "0.3"
-env_logger = "0.3"
 rand = "0.3"
 #clippy = "~0.0"
 #herbie-lint = "^1.0"
+
+[dev-dependencies]
+env_logger = "0.3"

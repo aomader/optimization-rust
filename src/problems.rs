@@ -178,6 +178,7 @@ define_problem!{McCormick: self,
 */
 
 
+#[cfg(test)]
 macro_rules! test_minimizer {
     ( $minimizer:expr, $( $name:ident => $problem:expr ),* ) => {
         $(
