@@ -23,9 +23,8 @@ pub mod problems;
 mod types;
 mod utils;
 mod line_search;
-
-pub mod gd;
-pub mod sgd;
+mod gd;
+mod sgd;
 
 
 // public re-exports

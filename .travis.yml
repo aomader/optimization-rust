@@ -23,7 +23,7 @@ script:
       travis-cargo build &&
       travis-cargo test &&
       travis-cargo bench &&
-      travis-cargo --only nightly doc
+      travis-cargo --only nightly doc --features problems
 
 after_success:
   - travis-cargo --only nightly doc-upload
