@@ -92,6 +92,7 @@ macro_rules! define_problem {
 /// > f(x) = ∑ᵢ xᵢ²
 ///
 /// *Global minimum*: `f(0,...,0) = 0`
+#[derive(Debug, Copy, Clone)]
 pub struct Sphere {
     dimensions: usize
 }
@@ -126,6 +127,7 @@ define_problem!{Sphere: self,
 /// > f(x, y) = (a - x)² + b (y - x²)²
 ///
 /// *Global minimum*: `f(a, a²) = 0`
+#[derive(Debug, Copy, Clone)]
 pub struct Rosenbrock {
     a: f64,
     b: f64
