@@ -1,31 +1,46 @@
 use std::f64::EPSILON;
 
 use problems::Problem;
-use types::{Function, DifferentiableFunction};
+use types::{Function, Derivative1};
 
 
 /// Wraps a function for which to provide numeric differentiation.
 ///
 /// Uses simple one step forward finite difference with step width `h = √εx`.
-pub struct Numerical<F: Function> {
+///
+/// # Examples
+///
+/// ```
+/// # use self::optimization::*;
+/// let square = NumericalDifferentiation::new(|x: &[f64]| {
+///     x[0] * x[0]
+/// });
+///
+/// assert!(square.gradient(&[0.0])[0] < 1.0e-3);
+/// assert!(square.gradient(&[1.0])[0] > 1.0);
+/// assert!(square.gradient(&[-1.0])[0] < 1.0);
+/// ```
+pub struct NumericalDifferentiation<F: Function> {
     function: F
 }
 
-impl<F: Function> Numerical<F> {
+impl<F: Function> NumericalDifferentiation<F> {
+    /// Creates a new differentiable function by using the supplied `function` in
+    /// combination with numeric differentiation to find the derivatives.
     pub fn new(function: F) -> Self {
-        Numerical {
+        NumericalDifferentiation {
             function: function
         }
     }
 }
 
-impl<F: Function> Function for Numerical<F> {
+impl<F: Function> Function for NumericalDifferentiation<F> {
     fn value(&self, position: &[f64]) -> f64 {
         self.function.value(position)
     }
 }
 
-impl<F: Function> DifferentiableFunction for Numerical<F> {
+impl<F: Function> Derivative1 for NumericalDifferentiation<F> {
     fn gradient(&self, position: &[f64]) -> Vec<f64> {
         let mut x: Vec<_> = position.iter().cloned().collect();
 
@@ -46,22 +61,22 @@ impl<F: Function> DifferentiableFunction for Numerical<F> {
 
             x[i] = x_i;
 
-            let dx_i = (forward - current) / h;
+            let d_i = (forward - current) / h;
 
-            assert!(dx_i.is_finite());
+            assert!(d_i.is_finite());
 
-            dx_i
+            d_i
         }).collect()
     }
 }
 
-impl<F: Function + Default> Default for Numerical<F> {
+impl<F: Function + Default> Default for NumericalDifferentiation<F> {
     fn default() -> Self {
-        Numerical::new(F::default())
+        NumericalDifferentiation::new(F::default())
     }
 }
 
-impl<F: Problem> Problem for Numerical<F> {
+impl<F: Problem> Problem for NumericalDifferentiation<F> {
     fn dimensions(&self) -> usize {
         self.function.dimensions()
     }
@@ -82,12 +97,12 @@ impl<F: Problem> Problem for Numerical<F> {
 
 #[cfg(test)]
 mod tests {
-    use types::DifferentiableFunction;
+    use types::Derivative1;
     use problems::{Problem, Sphere, Rosenbrock};
     use utils::are_close;
     use gd::GradientDescent;
 
-    use super::Numerical;
+    use super::NumericalDifferentiation;
 
     #[test]
     fn test_accuracy() {
@@ -98,7 +113,7 @@ mod tests {
         let problems = vec![b];
 
         for analytical_problem in problems {
-            let numerical_problem = Numerical::new(analytical_problem.clone());
+            let numerical_problem = NumericalDifferentiation::new(analytical_problem);
 
             for _ in 0..1000 {
                 let position = analytical_problem.random_start();
@@ -108,14 +123,14 @@ mod tests {
 
                 assert_eq!(analytical_gradient.len(), numerical_gradient.len());
 
-                assert!(analytical_gradient.into_iter().zip(numerical_gradient).all(|(a, n)| {
+                assert!(analytical_gradient.into_iter().zip(numerical_gradient).all(|(a, n)|
                     a.is_finite() && n.is_finite() && are_close(a, n, 1.0e-3)
-                }));
+                ));
             }
         }
     }
 
     test_minimizer!{GradientDescent::new(),
-        test_gd_sphere => Numerical::new(Sphere::default()),
-        test_gd_rosenbrock => Numerical::new(Rosenbrock::default())}
+        test_gd_sphere => NumericalDifferentiation::new(Sphere::default()),
+        test_gd_rosenbrock => NumericalDifferentiation::new(Rosenbrock::default())}
 }

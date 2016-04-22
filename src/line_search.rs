@@ -1,6 +1,7 @@
 use std::fmt::Debug;
+use std::ops::Add;
 
-use types::{Function, DifferentiableFunction};
+use types::{Function, Derivative1};
 
 
 /// Define a line search method, i.e., choosing an appropriate step width.
@@ -8,29 +9,29 @@ pub trait LineSearch: Debug {
     /// Performs the actual line search given the current `position` `x` and a `direction` to go to.
     /// Returns the new position.
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
-        where F: DifferentiableFunction;
+        where F: Derivative1;
 }
 
 
 /// Uses a fixed step width `γ` in each iteration instead of performing an actual line search.
 #[derive(Debug, Copy, Clone)]
-pub struct NoLineSearch {
+pub struct FixedStepWidth {
     fixed_step_width: f64
 }
 
-impl NoLineSearch {
+impl FixedStepWidth {
     /// Creates a new `FixedStepWidth` given the static step width.
-    pub fn new(fixed_step_width: f64) -> NoLineSearch {
+    pub fn new(fixed_step_width: f64) -> FixedStepWidth {
         assert!(fixed_step_width > 0.0 && fixed_step_width.is_finite(),
             "fixed_step_width must be greater than 0 and finite");
 
-        NoLineSearch {
+        FixedStepWidth {
             fixed_step_width: fixed_step_width
         }
     }
 }
 
-impl LineSearch for NoLineSearch {
+impl LineSearch for FixedStepWidth {
     fn search<F>(&self, _function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
         where F: Function
     {
@@ -75,7 +76,7 @@ impl ExactLineSearch {
 
 impl LineSearch for ExactLineSearch {
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
-        where F: DifferentiableFunction
+        where F: Derivative1
     {
         let mut min_position = initial_position.iter().cloned().collect();
         let mut min_value = function.value(initial_position);
@@ -137,12 +138,12 @@ impl ArmijoLineSearch {
 
 impl LineSearch for ArmijoLineSearch {
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
-        where F: DifferentiableFunction
+        where F: Derivative1
     {
         let initial_value = function.value(initial_position);
         let gradient = function.gradient(initial_position);
 
-        let m = gradient.iter().zip(direction).map(|(g, d)| g * d).sum::<f64>();
+        let m = gradient.iter().zip(direction).map(|(g, d)| g * d).fold(0.0, Add::add);
         let t = -self.control_parameter * m;
 
         assert!(t > 0.0);

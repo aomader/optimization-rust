@@ -1,9 +1,22 @@
-//! Common optimization problems.
+//! Common optimization problems for testing purposes.
+//!
+//! Currently, the following [optimization test functions] are implemented.
+//!
+//! ## Bowl-Shaped
+//!
+//! * [`Sphere`](http://www.sfu.ca/~ssurjano/spheref.html)
+//!
+//! ## Valley-Shaped
+//!
+//! * [`Rosenbrock`](http://www.sfu.ca/~ssurjano/rosen.html)
+//!
+//! [optimization test functions]: http://www.sfu.ca/~ssurjano/optimization.html
 
 use rand::random;
 use std::f64::INFINITY;
+use std::ops::Add;
 
-use types::{Function, DifferentiableFunction};
+use types::{Function, Derivative1};
 
 
 /// Specifies a well known optimization problem.
@@ -56,7 +69,7 @@ macro_rules! define_problem {
             }
         }
 
-        impl DifferentiableFunction for $name {
+        impl Derivative1 for $name {
             fn gradient(&$this, $x2: &[f64]) -> Vec<f64> {
                 assert!($this.is_legal_position($x2));
 
@@ -114,7 +127,7 @@ define_problem!{Sphere: self,
     minimum: 0.0,
     at: (0..self.dimensions).map(|_| 0.0).collect(),
     start: (0..self.dimensions).map(|_| random::<f64>() * 10.24 - 5.12).collect(),
-    value: x => x.iter().map(|x| x.powi(2)).sum::<f64>(),
+    value: x => x.iter().map(|x| x.powi(2)).fold(0.0, Add::add),
     gradient: x => x.iter().map(|x| 2.0 * x).collect()
 }
 
@@ -198,7 +211,8 @@ macro_rules! test_minimizer {
                     let distance = $crate::Evaluation::position(&solution).iter()
                         .zip($crate::problems::Problem::minimum(&problem).0)
                         .map(|(a, b)| (a - b).powi(2))
-                        .sum::<f64>();
+                        .fold(0.0, ::std::ops::Add::add)
+                        .sqrt();
 
                     assert!(distance < 1.0e-2);
                 }

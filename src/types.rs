@@ -1,89 +1,25 @@
-use std::ops::Deref;
-
-
 /// Defines an objective function `f` that is subject to minimization.
+///
+/// For convenience every function with the same signature as `value()` qualifies as
+/// an objective function, e.g., minimizing a closure is perfectly fine.
 pub trait Function {
     /// Computes the objective function at a given `position` `x`, i.e., `f(x) = y`.
     fn value(&self, position: &[f64]) -> f64;
 }
 
-impl<'a, F: 'a + Function> Function for &'a F {
+impl<F: Fn(&[f64]) -> f64> Function for F {
     fn value(&self, position: &[f64]) -> f64 {
-        (*self).value(position)
+        self(position)
     }
 }
 
 
-/// Defines an analytical differentiable objective function.
-///
-/// In extension to `Objective`, this objective function is able to compute the gradient
-/// at a given position.
-pub trait DifferentiableFunction: Function {
+/// Defines an objective function `f` that is able to compute the first derivative
+/// `f'(x)` analytically.
+pub trait Derivative1: Function {
     /// Computes the gradient of the objective function at a given `position` `x`,
-    /// i.e., `∀ᵢ ∂/∂xᵢ f(x)`.
+    /// i.e., `∀ᵢ ∂/∂xᵢ f(x) = ∇f(x)`.
     fn gradient(&self, position: &[f64]) -> Vec<f64>;
-
-    fn probe(&self, position: &[f64]) -> (f64, Vec<f64>) {
-        (self.value(position), self.gradient(position))
-    }
-}
-
-impl<'a, F: 'a + DifferentiableFunction> DifferentiableFunction for &'a F {
-    fn gradient(&self, position: &[f64]) -> Vec<f64> {
-        (*self).gradient(position)
-    }
-}
-
-
-/// Represents a summation of individual objective functions.
-///
-/// The combination is represented as a sum of the individual functions, i.e.,
-/// `f(x) = ∑ᵢ fᵢ(x)`. Same applies to the gradient, obviously.
-///
-/// Some optimizers, e.g., `StochasticGradientDescent`, exploit this fact.
-pub struct Summation<C> {
-    terms: C
-}
-
-impl<C: Deref<Target=[F]>, F: Function> Summation<C> {
-    /// Creates a new summation given the terms, i.e., individual functions to sum up.
-    pub fn new(terms: C) -> Self {
-        Summation {
-            terms: terms
-        }
-    }
-
-    /// Returns the functions that are summed up.
-    pub fn terms(&self) -> &[F] {
-        &*self.terms
-    }
-}
-
-impl<C: Deref<Target=[F]>, F: Function> Function for Summation<C> {
-    fn value(&self, position: &[f64]) -> f64 {
-        let mut value = 0.0;
-
-        for term in self.terms() {
-            value += term.value(position);
-        }
-
-        value
-    }
-}
-
-impl<C: Deref<Target=[F]>, F: DifferentiableFunction> DifferentiableFunction for Summation<C> {
-    fn gradient(&self, position: &[f64]) -> Vec<f64> {
-        let mut gradient = vec![0.0; position.len()];
-
-        // TODO: This can be optimized easily
-        for term in self.terms() {
-            for (g, gi) in gradient.iter_mut().zip(term.gradient(position)) {
-                *g += gi;
-            }
-        }
-
-        gradient
-    }
 }
 
 
@@ -95,14 +31,6 @@ pub trait Minimizer<F: Function> {
     /// might be better than the initially provided one.
     fn minimize(&self, function: &F, initial_position: Vec<f64>) -> Self::Solution;
 }
-
-/*
-pub trait IterativeMinimizer: Minimizer<F> {
-    fn max_iterations(&mut self, max_iterations: Option<u64>) -> &mut Self;
-
-    //fn iteration_callback(&mut self, callback: &FnMut) -> &mut Self;
-}
-*/
 
 
 /// Captures the essence of a function evaluation.
@@ -116,9 +44,12 @@ pub trait Evaluation {
 
 
 /// A solution of a minimization run providing only the minimal information.
+///
+/// Each `Minimizer` might yield different types of solution structs which provide more
+/// information.
 #[derive(Debug, Clone)]
 pub struct Solution {
-    /// Position `x` with the lowest corresponding value `f(x)`.
+    /// Position `x` of the lowest corresponding value `f(x)` that has been found.
     pub position: Vec<f64>,
     /// The actual value `f(x)`.
     pub value: f64

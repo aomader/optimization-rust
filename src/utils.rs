@@ -12,6 +12,7 @@ pub fn is_saddle_point(gradient: &[f64], tolerance: f64) -> bool {
 /// Tests whether two floating point numbers are close using the relative error
 /// and handling special cases like infinity etc.
 #[cfg(test)]
+#[allow(float_cmp)]
 pub fn are_close(a: f64, b: f64, eps: f64) -> bool {
     assert!(eps.is_finite());
 

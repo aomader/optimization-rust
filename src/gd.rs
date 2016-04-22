@@ -1,6 +1,6 @@
 use log::LogLevel::Trace;
 
-use types::{DifferentiableFunction, Minimizer, Solution};
+use types::{Derivative1, Minimizer, Solution};
 use line_search::{LineSearch, ArmijoLineSearch};
 use utils::is_saddle_point;
 
@@ -56,7 +56,7 @@ impl<T: LineSearch> GradientDescent<T> {
     }
 }
 
-impl<F: DifferentiableFunction, S: LineSearch> Minimizer<F> for GradientDescent<S>
+impl<F: Derivative1, S: LineSearch> Minimizer<F> for GradientDescent<S>
 {
     type Solution = Solution;
 
