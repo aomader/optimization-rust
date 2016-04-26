@@ -157,3 +157,30 @@ impl Evaluation for Solution {
         self.value
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::{Function, Summation, SummationFunction};
+
+    pub struct Constant(f64);
+
+    impl Function for Constant {
+        fn value(&self, _position: &[f64]) -> f64 {
+            self.0
+        }
+    }
+
+    #[test]
+    fn test_summation_function_value() {
+        let summation = Summation(vec![Constant(1.0), Constant(2.0), Constant(-4.0)]);
+        assert_eq!(summation.value(&[]), -1.0);
+    }
+
+    #[test]
+    fn test_summation_function_partial_value() {
+        let summation = Summation(vec![Constant(1.0), Constant(2.0), Constant(-4.0)]);
+        assert_eq!(summation.partial_value(&[], &[0, 1]), 3.0);
+        assert_eq!(summation.partial_value(&[], &[0, 2]), -3.0);
+    }
+}
