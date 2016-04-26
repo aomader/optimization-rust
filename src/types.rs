@@ -33,14 +33,14 @@ pub trait SummationFunction: Function {
     fn terms(&self) -> usize;
 
     /// Computes the partial value over a set of `terms` at the given `position`.
-    fn partial_value<I: Borrow<usize>, T: IntoIterator<Item=I>>(&self, position: &[f64], terms: T) -> f64;
+    fn partial_value(&self, position: &[f64], terms: &[usize]) -> f64;
 }
 
 
 /// Represents a summation of function that support the computation of the first derivative.
 pub trait SummationDerivative1: SummationFunction + Derivative1 {
     /// Computes the partial gradient over a set of `terms` at the given `position`.
-    fn partial_gradient<T: IntoIterator<Item=usize>>(&self, position: &[f64], terms: T) -> Vec<f64>;
+    fn partial_gradient(&self, position: &[f64], terms: &[usize]) -> Vec<f64>;
 }
 
 
@@ -49,7 +49,13 @@ pub struct Summation<T>(T);
 
 impl<C: Deref<Target=[F]>, F: Function> Function for Summation<C> {
     fn value(&self, position: &[f64]) -> f64 {
-        self.partial_value(position, 0..self.0.len())
+        let mut value = 0.0;
+
+        for term in &*self.0 {
+            value += term.value(position);
+        }
+
+        value
     }
 }
 
@@ -58,11 +64,11 @@ impl<C: Deref<Target=[F]>, F: Function> SummationFunction for Summation<C> {
         self.0.len()
     }
 
-    fn partial_value<I: Borrow<usize>, T: IntoIterator<Item=I>>(&self, position: &[f64], terms: T) -> f64 {
+    fn partial_value(&self, position: &[f64], terms: &[usize]) -> f64 {
         let mut value = 0.0;
 
-        for term in terms {
-            value += self.0[*term.borrow()].value(position);
+        for &term in terms {
+            value += self.0[term].value(position);
         }
 
         value
@@ -71,18 +77,10 @@ impl<C: Deref<Target=[F]>, F: Function> SummationFunction for Summation<C> {
 
 impl<C: Deref<Target=[F]>, F: Derivative1> Derivative1 for Summation<C> {
     fn gradient(&self, position: &[f64]) -> Vec<f64> {
-        self.partial_gradient(position, 0..self.0.len())
-    }
-}
-
-impl<C: Deref<Target=[F]>, F: Derivative1> SummationDerivative1 for Summation<C> {
-    fn partial_gradient<T: IntoIterator<Item=usize>>(&self, position: &[f64], terms: T) -> Vec<f64>
-    {
         let mut gradient = vec![0.0; position.len()];
 
-        // TODO: This can be optimized easily
-        for term in terms.into_iter() {
-            for (g, gi) in gradient.iter_mut().zip(self.0[term].gradient(position)) {
+        for term in &*self.0 {
+            for (g, gi) in gradient.iter_mut().zip(term.gradient(position)) {
                 *g += gi;
             }
         }
@@ -91,150 +89,21 @@ impl<C: Deref<Target=[F]>, F: Derivative1> SummationDerivative1 for Summation<C>
     }
 }
 
+impl<C: Deref<Target=[F]>, F: Derivative1> SummationDerivative1 for Summation<C> {
+    fn partial_gradient(&self, position: &[f64], terms: &[usize]) -> Vec<f64>
+    {
+        let mut gradient = vec![0.0; position.len()];
 
-pub struct Foo;
-
-impl Function for Foo {
-    fn value(&self, _: &[f64]) -> f64 {
-        0.0
-    }
-}
-
-pub fn test() {
-    let s = Summation(vec![Foo, Foo]);
-    let asd = vec![Foo, Foo, Foo];
-    let s2 = Summation(&*asd);
-}
-
-
-/*
-pub trait FunctionSummation: Summation
-    where Self::Term: Function
-{
-}
-
-pub trait Derivative1Summation: Summation
-    where Self::Term: Derivative1
-{
-    fn partial_gradient(&self, position: &[f64], terms: &[usize]) -> Vec<f64> {
-        vec![]
-        let mut value = 0.0;
-
-        let functions = self.terms();
-
+        // TODO: This can be optimized easily
         for &term in terms {
-            value += functions[term].value(position);
+            for (g, gi) in gradient.iter_mut().zip(self.0[term].gradient(position)) {
+                *g += gi;
+            }
         }
 
-        value
+        gradient
     }
 }
-
-impl<T> Summation for Vec<T> {
-    type Term = T;
-
-    fn terms(&self) -> &[T] {
-        &*self
-    }
-}
-
-impl<T: Function> FunctionSummation for Vec<T> {}
-impl<T: > FunctionSummation for Vec<T> {}
-*/
-
-/*
-pub trait Summation {
-    type Term: Function;
-
-    fn terms(&self) -> &[Self::Term];
-
-    fn partial_value(&self, position: &[f64], terms: &[usize]) -> f64 {
-        let mut value = 0.0;
-
-        let functions = self.terms();
-
-        for &term in terms {
-            value += functions[term].value(position);
-        }
-
-        value
-    }
-}
-
-pub trait SummationDerivative1: Summation{
-    fn partial_gradient(&self, terms: &[usize]) -> Vec<f64> {
-        vec![]
-    }
-}
-
-*/
-
-
-/*
-impl<F: Function> Function for Summation<F> {
-    fn value(&self, position: &[f64]) -> f64 {
-        let mut value = 0.0;
-
-        for function in self.terms() {
-            value += function.value(position);
-        }
-
-        value
-    }
-}
-*/
-
-/*
-pub trait SummationFunction<F: Function> {
-    fn terms(&self) -> &[F];
-
-    fn partial_value(&self, &) -> f64 {
-        let mut value = 0.0;
-
-        for term in self.terms() {
-            value += term.value();
-        }
-
-        value
-    }
-}
-*/
-/*
-pub trait SummationDerivative1<F: Derivative1>: SummationFunction<F> {
-
-}
-*/
-
-/*
-pub trait Summation2 {
-    type Term: Function;
-
-    fn terms(&self) -> &[Self::Term];
-
-    fn partial_value(&self) ->
-}
-
-impl<S: Summation2> S where S::Term: Derivative1 {
-    fn asd() {}
-}
-*/
-
-
-/*
-impl<S: Summation2> Function for S
-    where S::Term: Function
-{
-    fn value(&self, position: &[f64]) -> f64 {
-        let mut value = 0.0;
-
-        for function in self.terms() {
-            value += function.value(position);
-        }
-
-        value
-    }
-}
-*/
 
 
 /// Defines an optimizer that is able to minimize a given objective function `F`.

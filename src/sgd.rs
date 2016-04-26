@@ -66,7 +66,7 @@ impl<F: SummationDerivative1, L: LineSearch> Minimizer<F> for StochasticGradient
     fn minimize(&self, function: &F, initial_position: Vec<f64>) -> Solution {
         let terms: Vec<_> = (0..function.terms()).collect();
 
-        let pv = function.partial_value(&initial_position, terms); //terms.iter().cloned());
+        let pv = function.partial_value(&initial_position, &*terms); //terms.iter().cloned());
 
         return Solution::new(initial_position, 0.0);
     }
