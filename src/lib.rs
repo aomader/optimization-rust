@@ -41,9 +41,11 @@ mod utils;
 mod numeric;
 mod line_search;
 mod gd;
+mod sgd;
 
 
 pub use types::{Function, Derivative1, Minimizer, Evaluation};
 pub use numeric::NumericalDifferentiation;
 pub use line_search::{LineSearch, FixedStepWidth, ExactLineSearch, ArmijoLineSearch};
 pub use gd::GradientDescent;
+pub use sgd::StochasticGradientDescent;
