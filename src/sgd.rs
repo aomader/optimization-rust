@@ -1,35 +1,35 @@
-use line_search::{LineSearch, FixedStepWidth};
-use types::{Minimizer, Derivative1, Solution, SummationDerivative1};
+use log::LogLevel::Trace;
+use rand::{SeedableRng, Rng, XorShiftRng, random};
+
+use types::{Minimizer, Derivative1, Solution, Summation1, Function};
 
 
 /// Provides _stochastic_ Gradient Descent optimization.
-pub struct StochasticGradientDescent<L> {
-    line_search: L,
+pub struct StochasticGradientDescent {
+    rng: XorShiftRng,
     gradient_tolerance: f64,
     max_iterations: Option<u64>,
-    mini_batch: u64
+    mini_batch: usize,
+    step_width: f64
 }
 
-impl StochasticGradientDescent<FixedStepWidth> {
-    pub fn new() -> StochasticGradientDescent<FixedStepWidth> {
+impl StochasticGradientDescent {
+    pub fn new() -> StochasticGradientDescent {
         StochasticGradientDescent {
-            line_search: FixedStepWidth::new(0.01),
+            rng: random(),
             gradient_tolerance: 1.0e-4,
             max_iterations: None,
-            mini_batch: 1
+            mini_batch: 1,
+            step_width: 0.01
         }
     }
-}
 
-impl<L> StochasticGradientDescent<L> {
-    /// Specifies the line search method to use.
-    pub fn line_search<S: LineSearch>(self, line_search: S) -> StochasticGradientDescent<S> {
-        StochasticGradientDescent {
-            line_search: line_search,
-            gradient_tolerance: self.gradient_tolerance,
-            max_iterations: self.max_iterations,
-            mini_batch: self.mini_batch
-        }
+    /// Seeds the random number generator using the supplied `seed`.
+    ///
+    /// This is useful to create re-producable results.
+    pub fn seed(&mut self, seed: [u32; 4]) -> &mut Self {
+        self.rng = XorShiftRng::from_seed(seed);
+        self
     }
 
     /// Adjusts the gradient tolerance which is used as abort criterion to decide
@@ -51,40 +51,26 @@ impl<L> StochasticGradientDescent<L> {
     }
 
     /// Adjusts the mini batch size, i.e., how many terms are considered in one step at most.
-    pub fn mini_batch(&mut self, mini_batch: u64) -> &mut Self {
+    pub fn mini_batch(&mut self, mini_batch: usize) -> &mut Self {
         assert!(mini_batch > 0);
 
         self.mini_batch = mini_batch;
         self
     }
-}
 
-impl<F: SummationDerivative1, L: LineSearch> Minimizer<F> for StochasticGradientDescent<L>
-{
-    type Solution = Solution;
+    /// Adjusts the step size applied for each mini batch.
+    pub fn step_width(&mut self, step_width: f64) -> &mut Self {
+        assert!(step_width > 0.0);
 
-    fn minimize(&self, function: &F, initial_position: Vec<f64>) -> Solution {
-        let terms: Vec<_> = (0..function.terms()).collect();
-
-        let pv = function.partial_value(&initial_position, &*terms); //terms.iter().cloned());
-
-        return Solution::new(initial_position, 0.0);
+        self.step_width = step_width;
+        self
     }
 }
 
-/*
-impl<S: Summation2, L: LineSearch> Minimizer<S> for StochasticGradientDescent<L>
-    where S::Term: Derivative1
-{
+impl<F: Summation1> Minimizer<F> for StochasticGradientDescent {
     type Solution = Solution;
 
     fn minimize(&self, function: &F, initial_position: Vec<f64>) -> Solution {
-        return Solution::new(initial_position, 0.0);
-
-        info!("Starting gradient descent minimization: gradient_tolerance = {:?},
-            max_iterations = {:?}, line_search = {:?}",
-        self.gradient_tolerance, self.max_iterations, self.line_search);
-
         let mut position = initial_position;
         let mut value = function.value(&position);
 
@@ -95,21 +81,22 @@ impl<S: Summation2, L: LineSearch> Minimizer<S> for StochasticGradientDescent<L>
         }
 
         let mut iteration = 0;
+        let mut terms: Vec<_> = (0..function.terms()).collect();
+        let mut rng = self.rng.clone();
 
         loop {
-            let gradient = function.gradient(&position);
+            // ensure that we don't run into cycles
+            rng.shuffle(&mut terms);
 
-            if is_saddle_point(&gradient, self.gradient_tolerance) {
-                info!("Gradient to small, stopping optimization");
+            for batch in terms.chunks(self.mini_batch) {
+                let gradient = function.partial_gradient(&position, batch);
 
-                return Solution::new(position, value);
+                // step into the direction of the negative gradient
+                for (x, g) in position.iter_mut().zip(gradient) {
+                    *x -= self.step_width * g;
+                }
             }
 
-            let direction: Vec<_> = gradient.into_iter().map(|g| -g).collect();
-
-            let iter_xs = self.line_search.search(function, &position, &direction);
-
-            position = iter_xs;
             value = function.value(&position);
 
             iteration += 1;
@@ -121,15 +108,12 @@ impl<S: Summation2, L: LineSearch> Minimizer<S> for StochasticGradientDescent<L>
             }
 
             let reached_max_iterations = self.max_iterations.map_or(false,
-                                                                    |max_iterations| iteration == max_iterations);
+                |max_iterations| iteration == max_iterations);
 
             if reached_max_iterations {
                 info!("Reached maximal number of iterations, stopping optimization");
-
                 return Solution::new(position, value);
             }
         }
     }
 }
-        */
-

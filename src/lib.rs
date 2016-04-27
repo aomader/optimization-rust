@@ -44,7 +44,7 @@ mod gd;
 mod sgd;
 
 
-pub use types::{Function, Derivative1, Minimizer, Evaluation};
+pub use types::{Function, Derivative1, Func, Minimizer, Evaluation, Summation, Summation1, Sum};
 pub use numeric::NumericalDifferentiation;
 pub use line_search::{LineSearch, FixedStepWidth, ExactLineSearch, ArmijoLineSearch};
 pub use gd::GradientDescent;

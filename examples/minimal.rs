@@ -9,7 +9,7 @@ extern crate env_logger;
 extern crate optimization;
 
 
-use optimization::{Minimizer, GradientDescent, NumericalDifferentiation};
+use optimization::{Minimizer, GradientDescent, NumericalDifferentiation, Func};
 
 
 pub fn main() {
@@ -17,9 +17,9 @@ pub fn main() {
 
     // the target function we want to minimize, for educational reasons we use
     // the Rosenbrock function
-    let function = NumericalDifferentiation::new(|x: &[f64]| {
+    let function = NumericalDifferentiation::new(Func(|x: &[f64]| {
         (1.0 - x[0]).powi(2) + 100.0*(x[1] - x[0].powi(2)).powi(2)
-    });
+    }));
 
     // we use a simple gradient descent scheme
     let minimizer = GradientDescent::new();
