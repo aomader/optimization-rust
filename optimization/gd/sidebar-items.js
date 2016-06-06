@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["GradientDescent","A simple Gradient Descent optimizer."]]});

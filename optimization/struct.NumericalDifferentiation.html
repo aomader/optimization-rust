@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `NumericalDifferentiation` struct in crate `optimization`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, NumericalDifferentiation">
+
+    <title>optimization::NumericalDifferentiation - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>optimization</a></p><script>window.sidebarCurrent = {name: 'NumericalDifferentiation', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>optimization</a>::<wbr><a class='struct' href=''>NumericalDifferentiation</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-229' class='srclink' href='../src/optimization/src/numeric.rs.html#23-25' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct NumericalDifferentiation&lt;F: <a class='trait' href='../optimization/trait.Function.html' title='optimization::Function'>Function</a>&gt; {
+    // some fields omitted
+}</pre><div class='docblock'><p>Wraps a function for which to provide numeric differentiation.</p>
+
+<p>Uses simple one step forward finite difference with step width <code>h = √εx</code>.</p>
+
+<h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>square</span> <span class='op'>=</span> <span class='ident'>NumericalDifferentiation</span>::<span class='ident'>new</span>(<span class='ident'>Func</span>(<span class='op'>|</span><span class='ident'>x</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>f64</span>]<span class='op'>|</span> {
+    <span class='ident'>x</span>[<span class='number'>0</span>] <span class='op'>*</span> <span class='ident'>x</span>[<span class='number'>0</span>]
+}));
+
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>square</span>.<span class='ident'>gradient</span>(<span class='kw-2'>&amp;</span>[<span class='number'>0.0</span>])[<span class='number'>0</span>] <span class='op'>&lt;</span> <span class='number'>1.0e-3</span>);
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>square</span>.<span class='ident'>gradient</span>(<span class='kw-2'>&amp;</span>[<span class='number'>1.0</span>])[<span class='number'>0</span>] <span class='op'>&gt;</span> <span class='number'>1.0</span>);
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>square</span>.<span class='ident'>gradient</span>(<span class='kw-2'>&amp;</span>[<span class='op'>-</span><span class='number'>1.0</span>])[<span class='number'>0</span>] <span class='op'>&lt;</span> <span class='number'>1.0</span>);</pre>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;F: <a class='trait' href='../optimization/trait.Function.html' title='optimization::Function'>Function</a>&gt; <a class='struct' href='../optimization/struct.NumericalDifferentiation.html' title='optimization::NumericalDifferentiation'>NumericalDifferentiation</a>&lt;F&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(function: F) -&gt; Self</code></h4>
+<div class='docblock'><p>Creates a new differentiable function by using the supplied <code>function</code> in
+combination with numeric differentiation to find the derivatives.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;F: <a class='trait' href='../optimization/trait.Function.html' title='optimization::Function'>Function</a>&gt; <a class='trait' href='../optimization/trait.Function.html' title='optimization::Function'>Function</a> for <a class='struct' href='../optimization/struct.NumericalDifferentiation.html' title='optimization::NumericalDifferentiation'>NumericalDifferentiation</a>&lt;F&gt;</code></h3><div class='impl-items'><h4 id='method.value' class='method'><code>fn <a href='../optimization/trait.Function.html#tymethod.value' class='fnname'>value</a>(&amp;self, position: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></h4>
+</div><h3 class='impl'><code>impl&lt;F: <a class='trait' href='../optimization/trait.Function.html' title='optimization::Function'>Function</a>&gt; <a class='trait' href='../optimization/trait.Function1.html' title='optimization::Function1'>Function1</a> for <a class='struct' href='../optimization/struct.NumericalDifferentiation.html' title='optimization::NumericalDifferentiation'>NumericalDifferentiation</a>&lt;F&gt;</code></h3><div class='impl-items'><h4 id='method.gradient' class='method'><code>fn <a href='../optimization/trait.Function1.html#tymethod.gradient' class='fnname'>gradient</a>(&amp;self, position: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;</code></h4>
+</div><h3 class='impl'><code>impl&lt;F: <a class='trait' href='../optimization/trait.Function.html' title='optimization::Function'>Function</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../optimization/struct.NumericalDifferentiation.html' title='optimization::NumericalDifferentiation'>NumericalDifferentiation</a>&lt;F&gt;</code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; Self</code></h4>
+</div><h3 class='impl'><code>impl&lt;F: <a class='trait' href='../optimization/problems/trait.Problem.html' title='optimization::problems::Problem'>Problem</a>&gt; <a class='trait' href='../optimization/problems/trait.Problem.html' title='optimization::problems::Problem'>Problem</a> for <a class='struct' href='../optimization/struct.NumericalDifferentiation.html' title='optimization::NumericalDifferentiation'>NumericalDifferentiation</a>&lt;F&gt;</code></h3><div class='impl-items'><h4 id='method.dimensions' class='method'><code>fn <a href='../optimization/problems/trait.Problem.html#tymethod.dimensions' class='fnname'>dimensions</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<h4 id='method.domain' class='method'><code>fn <a href='../optimization/problems/trait.Problem.html#tymethod.domain' class='fnname'>domain</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</code></h4>
+<h4 id='method.minimum' class='method'><code>fn <a href='../optimization/problems/trait.Problem.html#tymethod.minimum' class='fnname'>minimum</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<h4 id='method.random_start' class='method'><code>fn <a href='../optimization/problems/trait.Problem.html#tymethod.random_start' class='fnname'>random_start</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;</code></h4>
+<h4 id='method.is_legal_position' class='method'><code>fn <a href='../optimization/problems/trait.Problem.html#method.is_legal_position' class='fnname'>is_legal_position</a>(&amp;self, position: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "optimization";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

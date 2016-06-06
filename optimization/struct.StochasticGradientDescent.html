@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `StochasticGradientDescent` struct in crate `optimization`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, StochasticGradientDescent">
+
+    <title>optimization::StochasticGradientDescent - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>optimization</a></p><script>window.sidebarCurrent = {name: 'StochasticGradientDescent', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>optimization</a>::<wbr><a class='struct' href=''>StochasticGradientDescent</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-487' class='srclink' href='../src/optimization/src/sgd.rs.html#8-13' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct StochasticGradientDescent {
+    // some fields omitted
+}</pre><div class='docblock'><p>Provides <em>stochastic</em> Gradient Descent optimization.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../optimization/struct.StochasticGradientDescent.html' title='optimization::StochasticGradientDescent'>StochasticGradientDescent</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../optimization/struct.StochasticGradientDescent.html' title='optimization::StochasticGradientDescent'>StochasticGradientDescent</a></code></h4>
+<div class='docblock'><p>Creates a new <code>StochasticGradientDescent</code> optimizer using the following defaults:</p>
+
+<ul>
+<li><strong><code>step_width</code></strong> = <code>0.01</code></li>
+<li><strong><code>mini_batch</code></strong> = <code>1</code></li>
+<li><strong><code>max_iterations</code></strong> = <code>1000</code></li>
+</ul>
+
+<p>The used random number generator is randomly seeded.</p>
+</div><h4 id='method.seed' class='method'><code>fn <a href='#method.seed' class='fnname'>seed</a>(&amp;mut self, seed: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.array.html'>[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.array.html'>; 4]</a>) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Seeds the random number generator using the supplied <code>seed</code>.</p>
+
+<p>This is useful to create re-producable results.</p>
+</div><h4 id='method.max_iterations' class='method'><code>fn <a href='#method.max_iterations' class='fnname'>max_iterations</a>(&amp;mut self, max_iterations: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u64.html'>u64</a>&gt;) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Adjusts the number of maximally run iterations. A value of <code>None</code> instructs the
+optimizer to ignore the nubmer of iterations.</p>
+</div><h4 id='method.mini_batch' class='method'><code>fn <a href='#method.mini_batch' class='fnname'>mini_batch</a>(&amp;mut self, mini_batch: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Adjusts the mini batch size, i.e., how many terms are considered in one step at most.</p>
+</div><h4 id='method.step_width' class='method'><code>fn <a href='#method.step_width' class='fnname'>step_width</a>(&amp;mut self, step_width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; &amp;mut Self</code></h4>
+<div class='docblock'><p>Adjusts the step size applied for each mini batch.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;F: <a class='trait' href='../optimization/trait.Summation1.html' title='optimization::Summation1'>Summation1</a>&gt; <a class='trait' href='../optimization/trait.Minimizer.html' title='optimization::Minimizer'>Minimizer</a>&lt;F&gt; for <a class='struct' href='../optimization/struct.StochasticGradientDescent.html' title='optimization::StochasticGradientDescent'>StochasticGradientDescent</a></code></h3><div class='impl-items'><h4 id='associatedtype.Solution' class='type'><code>type <a href='../optimization/trait.Minimizer.html#associatedtype.Solution' class='type'>Solution</a> = Solution</code></h4>
+<h4 id='method.minimize' class='method'><code>fn <a href='../optimization/trait.Minimizer.html#tymethod.minimize' class='fnname'>minimize</a>(&amp;self, function: &amp;F, initial_position: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;) -&gt; Solution</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "optimization";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

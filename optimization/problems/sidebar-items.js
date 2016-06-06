@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Rosenbrock","Two-dimensional Rosenbrock function."],["Sphere","n-dimensional Sphere function."]],"trait":[["Problem","Specifies a well known optimization problem."]]});

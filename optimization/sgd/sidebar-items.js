@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["StochasticGradientDescent","Provides _stochastic_ Gradient Descent optimization."]]});
