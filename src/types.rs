@@ -12,6 +12,8 @@ pub trait Function {
 }
 
 
+/// New-type to support optimization of arbitrary functions without requiring
+/// to implement a trait.
 pub struct Func<F: Fn(&[f64]) -> f64>(pub F);
 
 impl<F: Fn(&[f64]) -> f64> Function for Func<F> {
@@ -22,7 +24,7 @@ impl<F: Fn(&[f64]) -> f64> Function for Func<F> {
 
 
 /// Defines an objective function `f` that is able to compute the first derivative
-/// `f'(x)` analytically.
+/// `f'(x)`.
 pub trait Derivative1: Function {
     /// Computes the gradient of the objective function at a given `position` `x`,
     /// i.e., `∀ᵢ ∂/∂xᵢ f(x) = ∇f(x)`.
