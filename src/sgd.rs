@@ -7,17 +7,22 @@ use types::{Minimizer, Solution, Summation1};
 /// Provides _stochastic_ Gradient Descent optimization.
 pub struct StochasticGradientDescent {
     rng: XorShiftRng,
-    gradient_tolerance: f64,
     max_iterations: Option<u64>,
     mini_batch: usize,
     step_width: f64
 }
 
 impl StochasticGradientDescent {
+    /// Creates a new `StochasticGradientDescent` optimizer using the following defaults:
+    ///
+    /// - **`step_width`** = `0.01`
+    /// - **`mini_batch`** = `1`
+    /// - **`max_iterations`** = `1000`
+    ///
+    /// The used random number generator is randomly seeded.
     pub fn new() -> StochasticGradientDescent {
         StochasticGradientDescent {
             rng: random(),
-            gradient_tolerance: 1.0e-4,
             max_iterations: None,
             mini_batch: 1,
             step_width: 0.01
@@ -29,15 +34,6 @@ impl StochasticGradientDescent {
     /// This is useful to create re-producable results.
     pub fn seed(&mut self, seed: [u32; 4]) -> &mut Self {
         self.rng = XorShiftRng::from_seed(seed);
-        self
-    }
-
-    /// Adjusts the gradient tolerance which is used as abort criterion to decide
-    /// whether we reached a plateau.
-    pub fn gradient_tolerance(&mut self, gradient_tolerance: f64) -> &mut Self {
-        assert!(gradient_tolerance > 0.0);
-
-        self.gradient_tolerance = gradient_tolerance;
         self
     }
 
