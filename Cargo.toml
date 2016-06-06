@@ -1,6 +1,6 @@
 [package]
 name = "optimization"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Oliver Mader <b52@reaktor42.de>"]
 license = "MIT"
 description = "Collection of optimization algorithms"
