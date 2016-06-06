@@ -111,6 +111,7 @@ impl<C: Deref<Target=[F]>, F: Derivative1> Summation1 for Sum<C> {
 
 /// Defines an optimizer that is able to minimize a given objective function `F`.
 pub trait Minimizer<F: ?Sized> {
+    /// Type of the solution the `Minimizer` returns.
     type Solution: Evaluation;
 
     /// Performs the actual minimization and returns a solution that

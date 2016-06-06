@@ -7,12 +7,12 @@ Collection of optimization algorithms and strategies.
 ```rust
 extern crate optimization;
 
-use optimmization::{Minimizer, GradientDescent, NumericalDifferentiation};
+use optimmization::{Minimizer, GradientDescent, NumericalDifferentiation, Func};
 
 // numeric version of the Rosenbrock function
-let function = NumericalDifferentiation::new(|x: &[f64]| {
+let function = NumericalDifferentiation::new(Func(|x: &[f64]| {
     (1.0 - x[0]).powi(2) + 100.0*(x[1] - x[0].powi(2)).powi(2)
-});
+}));
 
 // we use a simple gradient descent scheme
 let minimizer = GradientDescent::new();
