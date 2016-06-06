@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::ops::Add;
 
-use types::{Function, Derivative1};
+use types::{Function, Function1};
 
 
 /// Define a line search method, i.e., choosing an appropriate step width.
@@ -9,7 +9,7 @@ pub trait LineSearch: Debug {
     /// Performs the actual line search given the current `position` `x` and a `direction` to go to.
     /// Returns the new position.
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
-        where F: Derivative1;
+        where F: Function1;
 }
 
 
@@ -76,7 +76,7 @@ impl ExactLineSearch {
 
 impl LineSearch for ExactLineSearch {
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
-        where F: Derivative1
+        where F: Function1
     {
         let mut min_position = initial_position.iter().cloned().collect();
         let mut min_value = function.value(initial_position);
@@ -138,7 +138,7 @@ impl ArmijoLineSearch {
 
 impl LineSearch for ArmijoLineSearch {
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
-        where F: Derivative1
+        where F: Function1
     {
         let initial_value = function.value(initial_position);
         let gradient = function.gradient(initial_position);

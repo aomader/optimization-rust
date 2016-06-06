@@ -1,7 +1,7 @@
 use std::f64::EPSILON;
 
 use problems::Problem;
-use types::{Function, Derivative1};
+use types::{Function, Function1};
 
 
 /// Wraps a function for which to provide numeric differentiation.
@@ -12,9 +12,9 @@ use types::{Function, Derivative1};
 ///
 /// ```
 /// # use self::optimization::*;
-/// let square = NumericalDifferentiation::new(|x: &[f64]| {
+/// let square = NumericalDifferentiation::new(Func(|x: &[f64]| {
 ///     x[0] * x[0]
-/// });
+/// }));
 ///
 /// assert!(square.gradient(&[0.0])[0] < 1.0e-3);
 /// assert!(square.gradient(&[1.0])[0] > 1.0);
@@ -40,7 +40,7 @@ impl<F: Function> Function for NumericalDifferentiation<F> {
     }
 }
 
-impl<F: Function> Derivative1 for NumericalDifferentiation<F> {
+impl<F: Function> Function1 for NumericalDifferentiation<F> {
     fn gradient(&self, position: &[f64]) -> Vec<f64> {
         let mut x: Vec<_> = position.iter().cloned().collect();
 
@@ -97,7 +97,7 @@ impl<F: Problem> Problem for NumericalDifferentiation<F> {
 
 #[cfg(test)]
 mod tests {
-    use types::Derivative1;
+    use types::Function1;
     use problems::{Problem, Sphere, Rosenbrock};
     use utils::are_close;
     use gd::GradientDescent;
