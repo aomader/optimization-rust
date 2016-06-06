@@ -8,11 +8,10 @@
 //! - **`Function1`** - Extends a `Function` by its first derivative
 //! - **`Summation`** - Represents a summation of functions, exploited, e.g., by SGD
 //! - **`Summation1`** - Analogous to `Function` and `Function1` but for `Summation`
-//! - **`Func`** - A new-type wrapper for the `Function` trait
-//! - **`Sum`** - A new-type wrapper for the `Summation` trait
-//! - **`NumericalDifferentiation`** - Provides numerical differentiation for arbitrary `Function`s
 //! - **`Minimizer`** - A minimization algorithm
 //! - **`Evaluation`** - A function evaluation `f(x) = y` that is returned by a `Minimizer`
+//! - **`Func`** - A new-type wrapper for the `Function` trait
+//! - **`NumericalDifferentiation`** - Provides numerical differentiation for arbitrary `Function`s
 //!
 //! # Algorithms
 //!
@@ -50,7 +49,7 @@ mod gd;
 mod sgd;
 
 
-pub use types::{Function, Function1, Func, Minimizer, Evaluation, Summation, Summation1, Sum};
+pub use types::{Function, Function1, Func, Minimizer, Evaluation, Summation, Summation1};
 pub use numeric::NumericalDifferentiation;
 pub use line_search::{LineSearch, FixedStepWidth, ExactLineSearch, ArmijoLineSearch};
 pub use gd::GradientDescent;

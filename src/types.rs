@@ -1,5 +1,4 @@
 use std::borrow::Borrow;
-use std::ops::Deref;
 
 
 /// Defines an objective function `f` that is subject to minimization.
@@ -88,27 +87,6 @@ impl<S: Summation1> Function1 for S {
 }
 
 
-/// New-type to support summation over common collection types without requiring to
-/// implement `Summation` for custom types.
-pub struct Sum<T>(pub T);
-
-impl<C: Deref<Target=[F]>, F: Function> Summation for Sum<C> {
-    fn terms(&self) -> usize {
-        self.0.len()
-    }
-
-    fn term_value(&self, position: &[f64], term: usize) -> f64 {
-        self.0[term].value(position)
-    }
-}
-
-impl<C: Deref<Target=[F]>, F: Function1> Summation1 for Sum<C> {
-    fn term_gradient(&self, position: &[f64], term: usize) -> Vec<f64> {
-        self.0[term].gradient(position)
-    }
-}
-
-
 /// Defines an optimizer that is able to minimize a given objective function `F`.
 pub trait Minimizer<F: ?Sized> {
     /// Type of the solution the `Minimizer` returns.
@@ -160,32 +138,4 @@ impl Evaluation for Solution {
     fn value(&self) -> f64 {
         self.value
     }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::{Function, Sum, Summation};
-
-    pub struct Constant(f64);
-
-    impl Function for Constant {
-        fn value(&self, _position: &[f64]) -> f64 {
-            self.0
-        }
-    }
-
-    #[test]
-    fn test_sum_value() {
-        let summation = Sum(vec![Constant(1.0), Constant(2.0), Constant(-4.0)]);
-        assert_eq!(summation.value(&[]), -1.0);
-    }
-
-/*
-    #[test]
-    fn test_sum_partial_value() {
-        let summation = Sum(&[Constant(1.0), Constant(2.0), Constant(-4.0)]);
-        assert_eq!(summation.partial_value(&[], &[0, 1]), 3.0);
-        assert_eq!(summation.partial_value(&[], &[0, 2]), -3.0);
-    }*/
 }
