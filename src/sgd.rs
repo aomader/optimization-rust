@@ -1,7 +1,7 @@
 use log::LogLevel::Trace;
 use rand::{SeedableRng, Rng, XorShiftRng, random};
 
-use types::{Minimizer, Derivative1, Solution, Summation1, Function};
+use types::{Minimizer, Solution, Summation1};
 
 
 /// Provides _stochastic_ Gradient Descent optimization.

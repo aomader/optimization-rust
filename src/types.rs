@@ -25,7 +25,7 @@ impl<F: Fn(&[f64]) -> f64> Function for Func<F> {
 
 /// Defines an objective function `f` that is able to compute the first derivative
 /// `f'(x)`.
-pub trait Derivative1: Function {
+pub trait Function1: Function {
     /// Computes the gradient of the objective function at a given `position` `x`,
     /// i.e., `∀ᵢ ∂/∂xᵢ f(x) = ∇f(x)`.
     fn gradient(&self, position: &[f64]) -> Vec<f64>;
@@ -62,7 +62,7 @@ impl<S: Summation> Function for S {
 
 /// Defines a summation of individual functions `fᵢ(x)`, assuming that each function has a first
 /// derivative.
-pub trait Summation1: Summation + Derivative1 {
+pub trait Summation1: Summation + Function1 {
     /// Computes the gradient of one individual function identified by `term` at the given
     /// `position`.
     fn term_gradient(&self, position: &[f64], term: usize) -> Vec<f64>;
@@ -81,7 +81,7 @@ pub trait Summation1: Summation + Derivative1 {
     }
 }
 
-impl<S: Summation1> Derivative1 for S {
+impl<S: Summation1> Function1 for S {
     fn gradient(&self, position: &[f64]) -> Vec<f64> {
         self.partial_gradient(position, 0..self.terms())
     }
@@ -102,7 +102,7 @@ impl<C: Deref<Target=[F]>, F: Function> Summation for Sum<C> {
     }
 }
 
-impl<C: Deref<Target=[F]>, F: Derivative1> Summation1 for Sum<C> {
+impl<C: Deref<Target=[F]>, F: Function1> Summation1 for Sum<C> {
     fn term_gradient(&self, position: &[f64], term: usize) -> Vec<f64> {
         self.0[term].gradient(position)
     }

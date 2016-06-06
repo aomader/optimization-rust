@@ -5,7 +5,11 @@
 //! Each central primitive is specified by a trait:
 //!
 //! - **`Function`** - Specifies a function that can be minimized
-//! - **`Derivative1`** - Extends a `Function` by the analytical first derivative
+//! - **`Function1`** - Extends a `Function` by its first derivative
+//! - **`Summation`** - Represents a summation of functions, exploited, e.g., by SGD
+//! - **`Summation1`** - Analogous to `Function` and `Function1` but for `Summation`
+//! - **`Func`** - A new-type wrapper for the `Function` trait
+//! - **`Sum`** - A new-type wrapper for the `Summation` trait
 //! - **`NumericalDifferentiation`** - Provides numerical differentiation for arbitrary `Function`s
 //! - **`Minimizer`** - A minimization algorithm
 //! - **`Evaluation`** - A function evaluation `f(x) = y` that is returned by a `Minimizer`
@@ -21,6 +25,8 @@
 //!    - *`ExactLineSearch`* - Exhaustive line search over a set of step widths
 //!    - *`ArmijoLineSearch`* - Backtracking line search using the Armijo rule as stopping
 //!      criterion
+//! - **`StochasticGradientDescent`** - Iterative stochastic gradient descenent minimazation,
+//!   currently using a fixed step width
 
 
 #![cfg_attr(feature = "unstable", feature(plugin))]
@@ -44,7 +50,7 @@ mod gd;
 mod sgd;
 
 
-pub use types::{Function, Derivative1, Func, Minimizer, Evaluation, Summation, Summation1, Sum};
+pub use types::{Function, Function1, Func, Minimizer, Evaluation, Summation, Summation1, Sum};
 pub use numeric::NumericalDifferentiation;
 pub use line_search::{LineSearch, FixedStepWidth, ExactLineSearch, ArmijoLineSearch};
 pub use gd::GradientDescent;
