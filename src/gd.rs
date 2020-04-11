@@ -1,4 +1,4 @@
-use log::LogLevel::Trace;
+use log::Level::Trace;
 
 use types::{Function1, Minimizer, Solution};
 use line_search::{LineSearch, ArmijoLineSearch};

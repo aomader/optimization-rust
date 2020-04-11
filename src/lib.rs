@@ -28,14 +28,10 @@
 //!   currently using a fixed step width
 
 
-#![cfg_attr(feature = "unstable", feature(plugin))]
-#![cfg_attr(feature = "unstable", plugin(clippy))]
-#![cfg_attr(feature = "unstable", plugin(herbie_lint))]
-
-
 #[macro_use]
 extern crate log;
 extern crate rand;
+extern crate rand_pcg;
 
 
 #[macro_use]

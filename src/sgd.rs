@@ -1,12 +1,14 @@
-use log::LogLevel::Trace;
-use rand::{SeedableRng, Rng, XorShiftRng, random};
+use log::Level::Trace;
+use rand::{SeedableRng, random};
+use rand::seq::SliceRandom;
+use rand_pcg::Pcg64Mcg;
 
 use types::{Minimizer, Solution, Summation1};
 
 
 /// Provides _stochastic_ Gradient Descent optimization.
 pub struct StochasticGradientDescent {
-    rng: XorShiftRng,
+    rng: Pcg64Mcg,
     max_iterations: Option<u64>,
     mini_batch: usize,
     step_width: f64
@@ -22,7 +24,7 @@ impl StochasticGradientDescent {
     /// The used random number generator is randomly seeded.
     pub fn new() -> StochasticGradientDescent {
         StochasticGradientDescent {
-            rng: random(),
+            rng: Pcg64Mcg::new(random()),
             max_iterations: None,
             mini_batch: 1,
             step_width: 0.01
@@ -32,8 +34,8 @@ impl StochasticGradientDescent {
     /// Seeds the random number generator using the supplied `seed`.
     ///
     /// This is useful to create re-producable results.
-    pub fn seed(&mut self, seed: [u32; 4]) -> &mut Self {
-        self.rng = XorShiftRng::from_seed(seed);
+    pub fn seed(&mut self, seed: u64) -> &mut Self {
+        self.rng = Pcg64Mcg::seed_from_u64(seed);
         self
     }
 
@@ -88,7 +90,7 @@ impl<F: Summation1> Minimizer<F> for StochasticGradientDescent {
 
         loop {
             // ensure that we don't run into cycles
-            rng.shuffle(&mut terms);
+            terms.shuffle(&mut rng);
 
             for batch in terms.chunks(self.mini_batch) {
                 let gradient = function.partial_gradient(&position, batch);

@@ -6,12 +6,13 @@
 
 extern crate env_logger;
 extern crate rand;
+extern crate rand_distr;
 
 extern crate optimization;
 
 
-use rand::distributions::{Normal, IndependentSample};
-use rand::random;
+use rand::prelude::*;
+use rand_distr::StandardNormal;
 
 use optimization::*;
 
@@ -27,8 +28,8 @@ fn main() {
 
     let noisy_observations = (0..100).map(|_| {
         let x = random::<[f64; 2]>();
-        let y = linear_regression(true_coefficients, &x) +
-                Normal::new(0.0, 1.0).ind_sample(&mut rand::thread_rng());
+        let noise: f64 = thread_rng().sample(StandardNormal);
+        let y = linear_regression(true_coefficients, &x) + noise;
 
         (x.iter().cloned().collect(), y)
     }).collect();
