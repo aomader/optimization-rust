@@ -12,6 +12,7 @@ pub fn is_saddle_point(gradient: &[f64], tolerance: f64) -> bool {
 /// Tests whether two floating point numbers are close using the relative error
 /// and handling special cases like infinity etc.
 #[cfg(test)]
+#[allow(clippy::float_cmp)]
 pub fn are_close(a: f64, b: f64, eps: f64) -> bool {
     assert!(eps.is_finite());
 
@@ -49,7 +50,7 @@ mod tests {
         assert!(are_close(1.0, 1.0, 0.00001));
         assert!(are_close(INFINITY, INFINITY, 0.00001));
         assert!(are_close(1.0e-1000, 0.0, 0.1));
-        assert!(!are_close(1.0e-40, 0.0, 0.000001));
+        assert!(!are_close(1.0e-40, 0.0, 0.000_001));
         assert!(!are_close(2.0, 1.0, 0.00001));
         assert!(!are_close(NAN, NAN, 0.00001));
     }
