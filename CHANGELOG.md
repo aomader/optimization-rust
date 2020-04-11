@@ -1,3 +1,9 @@
+<a name="0.2.0"></a>
+## 0.2.0 (2020-04-11)
+
+* Update dependencies
+* **BREAKING:** `StochasticGradientDescent::seed()` takes an `u64` now
+
 <a name="0.1.0"></a>
 ## 0.1.0 (2016-06-06)
 
