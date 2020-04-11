@@ -63,6 +63,12 @@ impl StochasticGradientDescent {
     }
 }
 
+impl Default for StochasticGradientDescent {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<F: Summation1> Minimizer<F> for StochasticGradientDescent {
     type Solution = Solution;
 

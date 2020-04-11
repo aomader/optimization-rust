@@ -115,7 +115,7 @@ impl Sphere {
         assert!(dimensions > 0, "dimensions must be larger than 1");
 
         Sphere {
-            dimensions: dimensions
+            dimensions
         }
     }
 }
@@ -151,8 +151,8 @@ impl Rosenbrock {
     /// with 1 and 100, respectively, which also corresponds to the `default`.
     pub fn new(a: f64, b: f64) -> Rosenbrock {
         Rosenbrock {
-            a: a,
-            b: b
+            a,
+            b
         }
     }
 }
