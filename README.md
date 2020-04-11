@@ -41,11 +41,11 @@ For an exhaustive documentation head over to the [API docs].
 
 ## Development
 
-In order to run the code against more sophisticated linters compile it
-using a nightly version in combination with the feature `unstable`:
+Simply download this crate, add your stuff, write some tests and create a pull request. Pretty simple! :)
 
 ```shell
-$ cargo test --features unstable
+$ cargo test
+$ cargo clippy
 ```
 
 ## License
@@ -53,4 +53,4 @@ $ cargo test --features unstable
 This software is licensed under the terms of the MIT license. Please see the
 [LICENSE](LICENSE) for full details.
 
-[API docs]: https://b52.github.io/optimization-rust
+[API docs]: https://docs.rs/optimization

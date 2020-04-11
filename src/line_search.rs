@@ -26,7 +26,7 @@ impl FixedStepWidth {
             "fixed_step_width must be greater than 0 and finite");
 
         FixedStepWidth {
-            fixed_step_width: fixed_step_width
+            fixed_step_width
         }
     }
 }
@@ -67,9 +67,9 @@ impl ExactLineSearch {
             "increase_factor must be greater than 1 and finite");
 
         ExactLineSearch {
-            start_step_width: start_step_width,
-            stop_step_width: stop_step_width,
-            increase_factor: increase_factor
+            start_step_width,
+            stop_step_width,
+            increase_factor
         }
     }
 }
@@ -78,7 +78,7 @@ impl LineSearch for ExactLineSearch {
     fn search<F>(&self, function: &F, initial_position: &[f64], direction: &[f64]) -> Vec<f64>
         where F: Function1
     {
-        let mut min_position = initial_position.iter().cloned().collect();
+        let mut min_position = initial_position.to_vec();
         let mut min_value = function.value(initial_position);
 
         let mut step_width = self.start_step_width;
@@ -129,9 +129,9 @@ impl ArmijoLineSearch {
         assert!(decay_factor > 0.0 && decay_factor < 1.0, "decay_factor must be in range (0, 1)");
 
         ArmijoLineSearch {
-            control_parameter: control_parameter,
-            initial_step_width: initial_step_width,
-            decay_factor: decay_factor
+            control_parameter,
+            initial_step_width,
+            decay_factor
         }
     }
 }

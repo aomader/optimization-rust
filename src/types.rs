@@ -124,8 +124,8 @@ impl Solution {
     /// Creates a new `Solution` given the `position` as well as the corresponding `value`.
     pub fn new(position: Vec<f64>, value: f64) -> Solution {
         Solution {
-            position: position,
-            value: value
+            position,
+            value
         }
     }
 }

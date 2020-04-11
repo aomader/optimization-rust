@@ -13,7 +13,7 @@ use optimization::{Minimizer, GradientDescent, NumericalDifferentiation, Func};
 
 
 pub fn main() {
-    let _ = env_logger::init();
+    env_logger::init();
 
     // the target function we want to minimize, for educational reasons we use
     // the Rosenbrock function

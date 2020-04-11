@@ -29,7 +29,7 @@ impl<F: Function> NumericalDifferentiation<F> {
     /// combination with numeric differentiation to find the derivatives.
     pub fn new(function: F) -> Self {
         NumericalDifferentiation {
-            function: function
+            function
         }
     }
 }
@@ -42,7 +42,7 @@ impl<F: Function> Function for NumericalDifferentiation<F> {
 
 impl<F: Function> Function1 for NumericalDifferentiation<F> {
     fn gradient(&self, position: &[f64]) -> Vec<f64> {
-        let mut x: Vec<_> = position.iter().cloned().collect();
+        let mut x: Vec<_> = position.to_vec();
 
         let current = self.value(&x);
 

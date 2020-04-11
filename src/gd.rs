@@ -1,4 +1,4 @@
-use log::LogLevel::Trace;
+use log::Level::Trace;
 
 use types::{Function1, Minimizer, Solution};
 use line_search::{LineSearch, ArmijoLineSearch};
@@ -6,6 +6,7 @@ use utils::is_saddle_point;
 
 
 /// A simple Gradient Descent optimizer.
+#[derive(Default)]
 pub struct GradientDescent<T> {
     line_search: T,
     gradient_tolerance: f64,
@@ -31,7 +32,7 @@ impl<T: LineSearch> GradientDescent<T> {
     /// Specifies the line search method to use.
     pub fn line_search<S: LineSearch>(self, line_search: S) -> GradientDescent<S> {
         GradientDescent {
-            line_search: line_search,
+            line_search,
             gradient_tolerance: self.gradient_tolerance,
             max_iterations: self.max_iterations
         }

@@ -4,33 +4,38 @@
 //! Run with `cargo run --example line_fitting`.
 
 
+#![allow(clippy::many_single_char_names)]
+
+
 extern crate env_logger;
 extern crate rand;
+extern crate rand_distr;
 
 extern crate optimization;
 
 
-use rand::distributions::{Normal, IndependentSample};
-use rand::random;
+use std::f64::consts::PI;
+use rand::prelude::*;
+use rand_distr::StandardNormal;
 
 use optimization::*;
 
 
 fn main() {
-    let _ = env_logger::init();
+    env_logger::init();
 
     // the true coefficients of our linear model
-    let true_coefficients = &[13.37, -4.2, 3.14];
+    let true_coefficients = &[13.37, -4.2, PI];
 
     println!("Trying to approximate the true linear regression coefficients {:?} using SGD \
         given 100 noisy samples", true_coefficients);
 
     let noisy_observations = (0..100).map(|_| {
         let x = random::<[f64; 2]>();
-        let y = linear_regression(true_coefficients, &x) +
-                Normal::new(0.0, 1.0).ind_sample(&mut rand::thread_rng());
+        let noise: f64 = thread_rng().sample(StandardNormal);
+        let y = linear_regression(true_coefficients, &x) + noise;
 
-        (x.iter().cloned().collect(), y)
+        (x.to_vec(), y)
     }).collect();
 
 

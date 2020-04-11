@@ -9,13 +9,10 @@ readme = "README.md"
 keywords = ["optimization", "minimization", "numeric"]
 
 [dependencies]
-log = "0.3"
-rand = "0.3"
-clippy = { version = "0.0", optional = true }
-herbie-lint = { version = "1.0", optional = true }
+log = "0.4"
+rand = "0.7"
+rand_distr = "0.2"
+rand_pcg = "0.2"
 
 [dev-dependencies]
-env_logger = "0.3"
-
-[features]
-unstable = ["clippy", "herbie-lint"]
+env_logger = "0.7"
